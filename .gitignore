@@ -15,3 +15,6 @@
 /src/Core/bin/Debug
 /src/Core/obj
 /src/LinkPreview/obj
+/src/UrlCleaner/bin/DebugNugetPush
+/src/LinkPreview/bin/DebugNugetPush
+/src/Core/bin/DebugNugetPush
