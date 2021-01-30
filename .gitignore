@@ -1,0 +1,17 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/ProjectSettings.json
+/.vs/UrlCleaner/v16/.suo
+/.vs
+/src/obj
+/nuget.config
+/src/bin/Debug/net5.0
+/src/bin/Debug
+/src/bin/DebugNugetPush
+/src/UrlCleaner/obj
+/src/UrlCleaner/bin/Debug
+/src/Core/bin/Debug
+/src/Core/obj
+/src/LinkPreview/obj
