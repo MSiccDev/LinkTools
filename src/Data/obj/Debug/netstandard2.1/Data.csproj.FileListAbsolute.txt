@@ -1,0 +1,9 @@
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/bin/Debug/netstandard2.1/MSiccDev.Libs.LinkTools.Data.deps.json
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/bin/Debug/netstandard2.1/MSiccDev.Libs.LinkTools.Data.dll
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/bin/Debug/netstandard2.1/MSiccDev.Libs.LinkTools.Data.pdb
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/Data.csproj.AssemblyReference.cache
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/Data.AssemblyInfoInputs.cache
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/Data.AssemblyInfo.cs
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/Data.csproj.CoreCompileInputs.cache
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/MSiccDev.Libs.LinkTools.Data.dll
+/Users/msiccdev/Documents/GitHub/LinkTools/src/Data/obj/Debug/netstandard2.1/MSiccDev.Libs.LinkTools.Data.pdb

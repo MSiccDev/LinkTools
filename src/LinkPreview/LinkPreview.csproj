@@ -9,7 +9,7 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.21041</ProjectVersion>
+    <ProjectVersion>1.0.21261</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
     <Revision>1</Revision>
@@ -41,14 +41,15 @@
 
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.30" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.34" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\UrlCleaner\UrlCleaner.csproj" />
+    <ProjectReference Include="..\Data\Data.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
