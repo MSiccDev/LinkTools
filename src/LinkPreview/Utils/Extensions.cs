@@ -23,7 +23,7 @@ namespace MSiccDev.Libs.LinkTools
                     if (parameters.AllKeys.Contains("u"))
                     {
                         var urlFromQuery = parameters.Get("u");
-                        if (!string.IsNullOrEmpty(urlFromQuery))
+                        if (!string.IsNullOrWhiteSpace(urlFromQuery))
                             return new Uri(urlFromQuery);
                     }
                 }
@@ -78,14 +78,14 @@ namespace MSiccDev.Libs.LinkTools
                                     result.Description = tagContent.Value;
                                 break;
                             case "twitter:title":
-                                result.Title = string.IsNullOrEmpty(result.Title) ? tagContent.Value : result.Title;
+                                result.Title = string.IsNullOrWhiteSpace(result.Title) ? tagContent.Value : result.Title;
                                 break;
                             case "twitter:description":
                                 if (includeDescription)
-                                    result.Description = string.IsNullOrEmpty(result.Description) ? tagContent.Value : result.Description;
+                                    result.Description = string.IsNullOrWhiteSpace(result.Description) ? tagContent.Value : result.Description;
                                 break;
                             case "twitter:image":
-                                result.ImageUrl = result.ImageUrl ?? new Uri(tagContent.Value);
+                                result.ImageUrl = result.ImageUrl ?? (!string.IsNullOrWhiteSpace(tagContent.Value) ? new Uri(tagContent.Value): null);
                                 break;
                         }
                     }
@@ -94,11 +94,11 @@ namespace MSiccDev.Libs.LinkTools
                         switch (tagProperty.Value.ToLower())
                         {
                             case "og:title":
-                                result.Title = string.IsNullOrEmpty(result.Title) ? tagContent.Value : result.Title;
+                                result.Title = string.IsNullOrWhiteSpace(result.Title) ? tagContent.Value : result.Title;
                                 break;
                             case "og:description":
                                 if (includeDescription)
-                                    result.Description = string.IsNullOrEmpty(result.Description) ? tagContent.Value : result.Description;
+                                    result.Description = string.IsNullOrWhiteSpace(result.Description) ? tagContent.Value : result.Description;
                                 break;
                             case "og:image":
                                 result.ImageUrl = result.ImageUrl == null ? new Uri(tagContent.Value.EnforceHttps()) : new Uri(result.ImageUrl.ToString().EnforceHttps());
@@ -116,13 +116,13 @@ namespace MSiccDev.Libs.LinkTools
             //there are still sites out there that are not using og: meta tags
             //trying to get preview values from html tags
             //in case of images, trying to get them either from self or select the biggest image that is one the page, with some filters applied
-            if (string.IsNullOrEmpty(result.Title))
+            if (string.IsNullOrWhiteSpace(result.Title))
             {
                 result.Title = document.TryGetTitleFromSelf();
             }
 
             if (includeDescription)
-                if (string.IsNullOrEmpty(result.Description))
+                if (string.IsNullOrWhiteSpace(result.Description))
                 {
                     result.Description = document.TryGetDescriptionFromSelf();
                 }
@@ -154,7 +154,7 @@ namespace MSiccDev.Libs.LinkTools
                     else
                         canonical = link.GetAttributeValue("href", null);
 
-                if (!string.IsNullOrEmpty(canonical))
+                if (!string.IsNullOrWhiteSpace(canonical))
                 {
                     if (!canonical.StartsWith("/"))
                     {
@@ -206,7 +206,7 @@ namespace MSiccDev.Libs.LinkTools
                     else
                     {
                         var url = link.GetAttributeValue("href", null);
-                        if (!string.IsNullOrEmpty(url))
+                        if (!string.IsNullOrWhiteSpace(url))
                             result = new Uri(url);
                     }
             }
@@ -215,7 +215,7 @@ namespace MSiccDev.Libs.LinkTools
 
         public static Uri TryGetImageUrlFromContent(this HtmlDocument document)
         {
-            var allImgs = document.DocumentNode.Descendants("img").Where(n => !string.IsNullOrEmpty(n.GetAttributeValue("src", null))).ToList();
+            var allImgs = document.DocumentNode.Descendants("img").Where(n => !string.IsNullOrWhiteSpace(n.GetAttributeValue("src", null))).ToList();
 
             var imgsWithSize = allImgs.Where(n => n.GetAttributeValue("width", null) != null && n.GetAttributeValue("height", null) != null).ToList();
 
@@ -249,7 +249,7 @@ namespace MSiccDev.Libs.LinkTools
 
                 var imgUrl = orderImgsBigEnoughBySize.FirstOrDefault().GetAttributeValue("src", null);
 
-                return !string.IsNullOrEmpty(imgUrl) ? null : new Uri(imgUrl);
+                return !string.IsNullOrWhiteSpace(imgUrl) ? null : new Uri(imgUrl);
             }
 
             return null;
