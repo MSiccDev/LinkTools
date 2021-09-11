@@ -9,7 +9,7 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.21261</ProjectVersion>
+    <ProjectVersion>1.0.21361</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
     <Revision>1</Revision>

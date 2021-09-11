@@ -361,9 +361,10 @@ FodyWeavers.xsd
 
 # .DS_Store
 .DS_Store
+
+#others
 nuget.config
-src/.DS_Store
-src/.DS_Store
 src/.DS_Store
 Tester/LinkToolsTester/LinkToolsTester.csproj
 Tester/LinkToolsTester/Program.cs
+
