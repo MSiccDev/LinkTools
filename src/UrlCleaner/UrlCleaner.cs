@@ -21,7 +21,7 @@ namespace MSiccDev.Libs.LinkTools
 
         }
 
-        public async Task Initialize()
+        public async Task InitializeAsync()
         {
             _campaignParams = await LoadDefaultParamsFromJsonFile();
 
@@ -32,9 +32,9 @@ namespace MSiccDev.Libs.LinkTools
         {
             CampaignParams campaigns = null;
 
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(UrlCleaner).Assembly;
 
-            var resourceFile = $"{assembly.GetName().Name}.campaignparams.json";
+            var resourceFile = "MSiccDev.Libs.LinkTools.campaignparams.json";
 
             using var resourceStream = assembly.GetManifestResourceStream(resourceFile);
             using var streamReader = new StreamReader(resourceStream);
@@ -133,13 +133,17 @@ namespace MSiccDev.Libs.LinkTools
                     {
                         if (campaign.IsDomainExclusive &&
                             !url.Authority.Contains(campaign.Name.ToLowerInvariant().Replace(".*", string.Empty)))
-                                return urlString;
+                            return urlString;
 
-                            //-1 one because we removed '&' and '?' already from param
-                            var indexofParam = urlString.IndexOf(param) - 1;
-                            //removing the last param if is a match
+                        //-1 one because we removed '&' and '?' already from param
+                        var indexofParam = urlString.IndexOf(param) - 1;
+                        //removing the last param if is a match
+
+                        if (indexofParam < 0)
+                            continue;
+                        else
                             urlString = urlString.Remove(indexofParam);
-                    }
+                    }                
                 }
                 return urlString;
             }

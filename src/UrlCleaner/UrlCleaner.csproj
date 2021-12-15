@@ -8,10 +8,10 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.21361</ProjectVersion>
+    <ProjectVersion>1.0.21501</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
-    <Revision>1</Revision>
+    <Revision>7</Revision>
     <ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
     <PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
   </PropertyGroup>
@@ -39,22 +39,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="campaignparams.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="campaignparams.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 
+  <ItemGroup>
+    <None Remove="campaignparams.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="campaignparams.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInPackage>true</IncludeInPackage>
+    </EmbeddedResource>
+  </ItemGroup>
 
   <PropertyGroup>
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
