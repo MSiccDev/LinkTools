@@ -278,8 +278,13 @@
       "name": "Zeit.de",
       "params": [
         "wt_zmc"
-      ],
-      "exlusivedomain": "zeit.de"
+      ]
+    },
+    {
+      "name": "RaiNews.it",
+      "params": [
+        "wt_mc"
+      ]
     }
   ]
 }

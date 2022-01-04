@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="LinksToTest.json" />
+    <None Remove="Newtonsoft.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LinksToTest.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\UrlCleaner\UrlCleaner.csproj" />
+    <ProjectReference Include="..\src\LinkPreview\LinkPreview.csproj" />
+    <ProjectReference Include="..\src\Data\Data.csproj" />
+    <ProjectReference Include="..\src\Core\Core.csproj" />
+  </ItemGroup>
+</Project>

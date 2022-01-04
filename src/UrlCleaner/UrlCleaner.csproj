@@ -8,10 +8,10 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.21501</ProjectVersion>
+    <ProjectVersion>1.0.22011</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
-    <Revision>7</Revision>
+    <Revision>3</Revision>
     <ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
     <PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
   </PropertyGroup>
@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="campaignparams.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <IncludeInPackage>true</IncludeInPackage>
     </EmbeddedResource>
   </ItemGroup>

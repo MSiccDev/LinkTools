@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "src\Data\Data.cspro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tester", "Tester", "{243D43B6-64DC-4957-A12D-B94AA957C8F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkToolsTester", "LinkToolsTester\LinkToolsTester.csproj", "{343E059F-0680-4E8E-9CC2-701A8A73CCFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkToolsTestConsole", "LinkToolsTestConsole\LinkToolsTestConsole.csproj", "{E6EEE1DE-72A5-4036-98A7-30C526C717D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,14 +61,14 @@ Global
 		{B965FAD5-C962-4170-AFEC-C37DED26BA2C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B965FAD5-C962-4170-AFEC-C37DED26BA2C}.ReleaseNugetPush|Any CPU.ActiveCfg = ReleaseNugetPush|Any CPU
 		{B965FAD5-C962-4170-AFEC-C37DED26BA2C}.ReleaseNugetPush|Any CPU.Build.0 = ReleaseNugetPush|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.DebugNugetPush|Any CPU.ActiveCfg = Debug|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.DebugNugetPush|Any CPU.Build.0 = Debug|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.ReleaseNugetPush|Any CPU.ActiveCfg = Debug|Any CPU
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE}.ReleaseNugetPush|Any CPU.Build.0 = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.DebugNugetPush|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.DebugNugetPush|Any CPU.Build.0 = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.ReleaseNugetPush|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6}.ReleaseNugetPush|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +77,6 @@ Global
 		SolutionGuid = {845685D1-99F7-410D-B51A-5E98EA08C718}
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{343E059F-0680-4E8E-9CC2-701A8A73CCFE} = {243D43B6-64DC-4957-A12D-B94AA957C8F7}
+		{E6EEE1DE-72A5-4036-98A7-30C526C717D6} = {243D43B6-64DC-4957-A12D-B94AA957C8F7}
 	EndGlobalSection
 EndGlobal
