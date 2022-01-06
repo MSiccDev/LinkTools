@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -28,9 +29,15 @@ namespace LinkToolsTestConsole
 
 
 
-            var cleanedUrlRaiNews1 = UrlCleaner.Current.CleanUrl(new Uri("https://www.rai24.it/articoli/2022/01/scuola-bfdcb38b-2dd8-44b0-812f-72e57fca9a8c.html?wt_mc=2.social.fb.red_scuola.&wt"));
-            var cleanedUrlRaiNews2 = UrlCleaner.Current.CleanUrl(new Uri("https://www.rai24.it/articoli/2022/01/scuola-bfdcb38b-2dd8-44b0-812f-72e57fca9a8c.html?wt_mc=2.social.tw.red_scuola.&wt"));
+            //var cleanedUrlRaiNews1 = UrlCleaner.Current.CleanUrl(new Uri("https://www.rai24.it/articoli/2022/01/scuola-bfdcb38b-2dd8-44b0-812f-72e57fca9a8c.html?wt_mc=2.social.fb.red_scuola.&wt"));
+            //var cleanedUrlRaiNews2 = UrlCleaner.Current.CleanUrl(new Uri("https://www.rai24.it/articoli/2022/01/scuola-bfdcb38b-2dd8-44b0-812f-72e57fca9a8c.html?wt_mc=2.social.tw.red_scuola.&wt"));
 
+
+            await TestCleanUrlsFromFileAsync();
+
+
+
+            Console.ReadLine();
         }
 
 
@@ -76,6 +83,19 @@ namespace LinkToolsTestConsole
                 Console.WriteLine($"Error requesting link {result.OriginalUrl}");
             }
 
+        }
+
+        public static async Task TestCleanUrlsFromFileAsync()
+        {
+            var urlsFromFile = await GetUrisFromJsonAsync();
+
+            foreach (var url in urlsFromFile)
+            {
+                var cleanedUrl = UrlCleaner.Current.CleanUrl(url);
+
+                Console.WriteLine($"Original: {url}");
+                Console.WriteLine($"Cleaned: {cleanedUrl}");
+            }
         }
 
 

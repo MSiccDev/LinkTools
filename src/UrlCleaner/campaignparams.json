@@ -194,9 +194,7 @@
         "cid",
         "c_id",
         "campaign_id",
-        "Campaign",
-        "ftag",
-        "taid"
+        "Campaign"
       ],
       "docs": "https://www.parse.ly/help/post/4843/campaign-data-tracking/"
     },
@@ -216,7 +214,8 @@
         "fb_source",
         "fbclid",
         "refsrc",
-        "hrc"
+        "hrc",
+        "__FB_PRIVATE_TRACKING__"
       ],
       "exlusivedomain": "facebook.com"
     },
@@ -283,10 +282,36 @@
       ]
     },
     {
-      "name": "RaiNews.it",
+      "name": "Campaign tracking (Microsoft)",
       "params": [
-        "wt_mc"
+        "ocid",
+        "OCID",
+        "WT.mc_id",
+        "wt.mc_id"
+      ]
+    },
+    {
+      "name": "Campaign tracking (detected from TwistReader)",
+      "params": [
+        "ftag",
+        "taid",
+        "tpcc",
+        "mktcid",
+        "mktcval",
+        "reduced",
+        "at_",
+        "xtor",
+        "wt_mc",
+        "hss_channel",
+        "_branch_match_id",
+        "_branch_referrer",
+        "src",
+        "source",
+        "ncid"
       ]
     }
   ]
 }
+
+
+
