@@ -194,7 +194,9 @@
         "cid",
         "c_id",
         "campaign_id",
-        "Campaign"
+        "Campaign",
+        "ftag",
+        "taid"
       ],
       "docs": "https://www.parse.ly/help/post/4843/campaign-data-tracking/"
     },
