@@ -9,10 +9,10 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.22011</ProjectVersion>
+    <ProjectVersion>1.0.22012</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
-    <Revision>5</Revision>
+    <Revision>1</Revision>
     <ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
     <PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
   </PropertyGroup>

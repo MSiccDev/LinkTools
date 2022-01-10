@@ -129,7 +129,7 @@ namespace MSiccDev.Libs.LinkTools
             {
                 foreach (var campaign in _campaignParams.Campaigns)
                 {
-                    foreach (var matchingParam in campaign.Parameters.Where(defaultParam => param.StartsWith(defaultParam)))
+                    foreach (var matchingParam in campaign.Parameters.Where(paramToCheck => param.StartsWith(paramToCheck)))
                     {
                         if (campaign.IsDomainExclusive &&
                             !url.Authority.Contains(campaign.Name.ToLowerInvariant().Replace(".*", string.Empty)))
