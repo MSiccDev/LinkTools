@@ -9,7 +9,7 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.22012</ProjectVersion>
+    <ProjectVersion>1.0.22021</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
     <Revision>1</Revision>
@@ -59,6 +59,7 @@
   <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
     <DefineConstants>DEBUG</DefineConstants>
     <PackageVersion>$(PreReleaseVersion)</PackageVersion>
+    <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
     <DebugType>full</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
@@ -66,6 +67,7 @@
   <PropertyGroup Condition=" '$(Configuration)'=='DebugNugetPush' ">
     <DefineConstants>DEBUG</DefineConstants>
     <PackageVersion>$(PreReleaseVersion)</PackageVersion>
+    <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -78,12 +80,14 @@
   <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
     <DefineConstants>RELEASE</DefineConstants>
     <PackageVersion>$(ReleaseVersion)</PackageVersion>
+    <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)'=='ReleaseNugetPush' ">
     <DefineConstants>RELEASE</DefineConstants>
     <PackageVersion>$(ReleaseVersion)</PackageVersion>
+    <AssemblyVersion>$(ReleaseVersion)</AssemblyVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DebugType>pdbonly</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

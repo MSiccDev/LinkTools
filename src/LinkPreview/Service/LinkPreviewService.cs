@@ -29,10 +29,15 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
         public LinkPreviewService()
         {
             _client = new InternalHttpClient();
+
+            //following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
+            var assembly = this.GetType().Assembly;
+            string libUserAgentString = $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
+
             _configWithCompression = new HttpClientConfiguration()
             {
                 AcceptHeader = "text/html",
-                CustomUserAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                CustomUserAgentString = libUserAgentString,
                 AllowRedirect = false,
                 UseCookies = false,
                 UseCompression = true,
@@ -42,7 +47,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             _configWithOutCompression = new HttpClientConfiguration()
             {
                 AcceptHeader = "text/html",
-                CustomUserAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4133.0 Safari/537.36 Edg/84.0.508.0",
+                CustomUserAgentString = libUserAgentString,
                 AllowRedirect = false,
                 UseCookies = false,
                 UseCompression = false,
@@ -55,11 +60,15 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 
 
-        public async Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest previewRequest, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false)
+        public async Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest previewRequest, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false, bool addCookieToRedirectedRequest = false)
         {
             try
             {
                 var currentRequestedUrlString = previewRequest.CurrentRequestedUrl.ToString();
+
+                string cookieHeaderValue = null;
+                if (addCookieToRedirectedRequest)
+                    cookieHeaderValue = TryExtractCookieValueFromLastResponse(previewRequest);
 
                 if (currentRequestedUrlString.Contains("facebook.com") &&
                     previewRequest.CurrentRequestedUrl.ContainsParameter("u"))
@@ -76,13 +85,16 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
                         var request = new HttpRequestMessage(currentRequestedUrlString.IsHttps() ? HttpMethod.Get : HttpMethod.Head, previewRequest.CurrentRequestedUrl);
                         request.Headers.Host = previewRequest.CurrentRequestedUrl.Host;
 
+                        if (!string.IsNullOrWhiteSpace(cookieHeaderValue))
+                            request.Headers.Add("Cookie", cookieHeaderValue);
+
                         HttpCompletionOption completionOption = HttpCompletionOption.ResponseHeadersRead;
 
                         var response = noCompression ?
                                        await _httpClientInstance.SendAsync(request, completionOption) :
                                        await TryGetResponseMessageWithoutCompressionAsync(request, completionOption);
 
-                        if (request.RequestUri == previewRequest.OriginalUrl)
+                        if (previewRequest.OriginalResponse == null)
                             previewRequest.OriginalResponse = response;
                         else
                             previewRequest.Redirects.Add(previewRequest.CurrentRequestedUrl.ToString(), response);
@@ -146,6 +158,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
         }
 
 
+
         private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest)
         {
 
@@ -200,6 +213,15 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             {
                 Console.WriteLine($"got redirect ({response.StatusCode}) from {previewRequest.CurrentRequestedUrl} to {redirectUri} (https: {redirectUri.ToString().IsHttps()})");
 
+                
+                if (redirectUri.ToString() == previewRequest.CurrentRequestedUrl.ToString())
+                {
+                    if (!response.Headers.Any(header => header.Key == "Set-Cookie"))
+                        return await GetLinkDataAsync(previewRequest, true);
+                    else
+                        return await GetLinkDataAsync(previewRequest, false, false, false, true);
+                }
+
                 var redirectUriString = redirectUri.ToString();
                 if (!redirectUriString.IsHttps())
                 {
@@ -242,6 +264,23 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             return !string.IsNullOrWhiteSpace(html) ? html.ToLinkInfo(response.RequestMessage.RequestUri) : null;
         }
 
+        private string TryExtractCookieValueFromLastResponse(LinkPreviewRequest previewRequest)
+        {
+            HttpResponseMessage cookieContainingResponse = null;
+            var lastResponse = previewRequest.Redirects.LastOrDefault();
 
+            cookieContainingResponse = lastResponse.Value == null ? previewRequest.OriginalResponse : lastResponse.Value;
+
+            var cookies = cookieContainingResponse.Headers.SingleOrDefault(header => header.Key == "Set-Cookie");
+
+            var cookieValues = cookies.Value.Select(cookie => cookie.Substring(0, cookie.IndexOf(";") + 1)).ToList();
+
+            StringBuilder cookieValueStringBuilder = new StringBuilder();
+
+            foreach (var value in cookieValues)
+                cookieValueStringBuilder.Append($"{value} ");
+
+            return cookieValueStringBuilder.ToString().Trim();
+        }
     }
 }

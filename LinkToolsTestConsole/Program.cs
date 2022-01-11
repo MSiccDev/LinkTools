@@ -25,7 +25,7 @@ namespace LinkToolsTestConsole
 
             _linkPreviewService = new LinkPreviewService();
 
-            //await TestGetAllLinksParallelAsync();
+            await TestGetAllLinksParallelAsync();
 
 
 
@@ -33,7 +33,7 @@ namespace LinkToolsTestConsole
             //var cleanedUrlRaiNews2 = UrlCleaner.Current.CleanUrl(new Uri("https://www.rai24.it/articoli/2022/01/scuola-bfdcb38b-2dd8-44b0-812f-72e57fca9a8c.html?wt_mc=2.social.tw.red_scuola.&wt"));
 
 
-            await TestCleanUrlsFromFileAsync();
+            //await TestCleanUrlsFromFileAsync();
 
 
 

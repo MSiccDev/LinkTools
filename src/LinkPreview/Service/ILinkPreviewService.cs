@@ -8,6 +8,6 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 {
     public interface ILinkPreviewService
     {
-        Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest url, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false);
+        Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest url, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false, bool addCookieToRedirectedRequest = false);
     }
 }
