@@ -16,9 +16,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\UrlCleaner\UrlCleaner.csproj" />
-    <ProjectReference Include="..\src\LinkPreview\LinkPreview.csproj" />
-    <ProjectReference Include="..\src\Data\Data.csproj" />
-    <ProjectReference Include="..\src\Core\Core.csproj" />
+    <ProjectReference Include="..\src\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
+    <ProjectReference Include="..\src\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
+    <ProjectReference Include="..\src\LinkPreview\MSiccDev.Libs.LinkTools.LinkPreview.csproj" />
+    <ProjectReference Include="..\src\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <Configurations>Debug;Release;DebugNugetPush;ReleaseNugetPush</Configurations>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
@@ -9,7 +9,7 @@
 
   <!--Versioning-->
   <PropertyGroup>
-    <ProjectVersion>1.0.22031</ProjectVersion>
+    <ProjectVersion>1.0.22061</ProjectVersion>
     <PrereleaseSuffix>-pre</PrereleaseSuffix>
     <RevisionSeparator>.</RevisionSeparator>
     <Revision>1</Revision>
