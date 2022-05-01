@@ -133,6 +133,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			{
 				if (ex is HttpRequestException requestException)
 				{
+					//TODO: add recursive InnerEx search
 					//socket exceptions get wrapped in http request exceptions
 					//avoiding circular requests by explicitly returning
 					if (ex.InnerException is SocketException socketException)
@@ -145,6 +146,18 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 					{
 						previewRequest.Error = new RequestError(authenticationException);
 						return previewRequest;
+					}
+					//well, they can get wrapped as well...
+					else if (ex.InnerException is IOException iOException)
+					{
+						if (iOException.InnerException != null)
+						{
+							if (iOException.InnerException is SocketException iOSsocketException)
+							{
+								previewRequest.Error = new RequestError(iOSsocketException);
+								return previewRequest;
+							}
+						}
 					}
 					else
 					{
