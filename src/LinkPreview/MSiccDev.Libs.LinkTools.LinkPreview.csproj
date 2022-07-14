@@ -33,7 +33,7 @@
 		<Copyright>© 2020 MSiccDev Software Development</Copyright>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
 	<ItemGroup>
