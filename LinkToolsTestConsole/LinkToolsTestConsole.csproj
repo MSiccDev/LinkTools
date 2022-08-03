@@ -1,24 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="LinksToTest.json" />
-    <None Remove="Newtonsoft.Json" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="LinksToTest.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\src\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
-    <ProjectReference Include="..\src\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
-    <ProjectReference Include="..\src\LinkPreview\MSiccDev.Libs.LinkTools.LinkPreview.csproj" />
-    <ProjectReference Include="..\src\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="LinksToTest.json" />
+		<None Remove="Newtonsoft.Json" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="LinksToTest.json" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\src\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
+		<ProjectReference Include="..\src\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
+		<ProjectReference Include="..\src\LinkPreview\MSiccDev.Libs.LinkTools.LinkPreview.csproj" />
+		<ProjectReference Include="..\src\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
+	</ItemGroup>
 </Project>
