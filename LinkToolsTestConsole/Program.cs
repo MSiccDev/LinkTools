@@ -73,7 +73,7 @@ namespace LinkToolsTestConsole
 
 			Console.WriteLine($"got {requests.Count} link preview requests");
 
-			var tasks = requests.Select(r => _linkPreviewService.GetLinkDataAsync(r)).ToList();
+			var tasks = requests.Select(r => _linkPreviewService.GetLinkDataAsync(r, includeDescription: true)).ToList();
 
 			Console.WriteLine($"running all requests");
 			var results = await Task.WhenAll(tasks).ConfigureAwait(false);

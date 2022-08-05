@@ -6,6 +6,7 @@ using MSiccDev.Libs.LinkTools;
 using MSiccDev.Libs.LinkTools.LinkPreview;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MSiccDev.Libs.LinkTools
 {
@@ -49,7 +50,7 @@ namespace MSiccDev.Libs.LinkTools
 			//second, try to fill missing data from html tags
 			//third, try to get canonical url
 			var result = new LinkInfo(url)
-							.TryParseSchemaOrgFromSelf(document)
+							.TryParseSchemaOrgFromSelf(document, includeDescription)
 							.TryParseOpenGraphMeta(document, includeDescription)
 							.TryParseHtmlTagsFromSelf(document, includeDescription)
 							.TryGetCanonicalUrl(document);
@@ -73,21 +74,16 @@ namespace MSiccDev.Libs.LinkTools
 						switch (tagName.Value.ToLower())
 						{
 							case "title":
-								result.Title = tagContent.Value;
-								break;
-							case "description":
-								if (includeDescription)
-									result.Description = tagContent.Value;
-								break;
 							case "twitter:title":
 								result.Title = string.IsNullOrWhiteSpace(result.Title) ? tagContent.Value : result.Title;
 								break;
+							case "description":
 							case "twitter:description":
 								if (includeDescription)
 									result.Description = string.IsNullOrWhiteSpace(result.Description) ? tagContent.Value : result.Description;
 								break;
 							case "twitter:image":
-								result.ImageUrl = result.ImageUrl ?? (!string.IsNullOrWhiteSpace(tagContent.Value) ? new Uri(tagContent.Value) : null);
+								result.ImageUrl ??= (!string.IsNullOrWhiteSpace(tagContent.Value) ? new Uri(tagContent.Value) : null);
 								break;
 						}
 					}
@@ -258,27 +254,65 @@ namespace MSiccDev.Libs.LinkTools
 		}
 
 
-		private static LinkInfo TryParseSchemaOrgFromSelf(this LinkInfo result, HtmlDocument document)
+		private static LinkInfo TryParseSchemaOrgFromSelf(this LinkInfo result, HtmlDocument document, bool includeDescription)
 		{
-			var jsonSerializerSettings = new JsonSerializerSettings()
-			{
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore,
-				Formatting = Formatting.Indented
-			};
-
 			var scriptNodesWithType = document.DocumentNode.SelectNodes("//script").
 						Where(n => !string.IsNullOrWhiteSpace(n.GetAttributeValue("type", null))).ToList();
 
-			var schemaOrgNodes = scriptNodesWithType
-								.Where(n => n.Attributes["type"].Value.Contains("application/ld+json"))
-								.Select(n => n.InnerText).ToList();
+			var applicationLdJsonNodes = scriptNodesWithType
+								.Where(n => n.Attributes["type"].Value.Contains("application/ld+json")).ToList();
 
-			var articleInfo = schemaOrgNodes.Select(json => JsonConvert.DeserializeObject<SchemaOrgArticleInfo>(json)).
-				FirstOrDefault(info => info.Type.IsArticleOrSubtype());
+			List<JObject> schemaOrgNodes = new List<JObject>();
 
-			result.Title = articleInfo.Headline;
-			result.ImageUrl = articleInfo.Image.Url;
+			//some websites implement schema.org as single entity, while others use an array
+			//this way, we are catching them all!
+			try
+			{
+				schemaOrgNodes = applicationLdJsonNodes.Select(n => JObject.Parse(n.InnerText)).ToList();
+			}
+			catch (Exception ex)
+			{
+				if (ex is JsonReaderException)
+				{
+					var schemaOrgArrays = applicationLdJsonNodes.Select(n => JArray.Parse(n.InnerText)).ToList();
+
+					foreach (var array in schemaOrgArrays)
+					{
+						schemaOrgNodes.Add((JObject)array.FirstOrDefault());
+					}
+				}
+			}
+
+			var articleInfo = schemaOrgNodes.FirstOrDefault(jo => ((string)jo.SelectToken("@type")).IsArticleOrSubtype());
+
+			if (articleInfo != null)
+			{
+				string headline = (string)articleInfo.SelectToken("headline");
+				if (!string.IsNullOrWhiteSpace(headline))
+					result.Title = headline;
+
+
+				string imageUrl = (string)articleInfo.SelectToken("image")?.SelectToken("url");
+				if (!string.IsNullOrWhiteSpace(imageUrl))
+					result.ImageUrl = new Uri(imageUrl);
+				else
+				{
+					string thumbnailUrl = (string)articleInfo.SelectToken("thumbnailUrl");
+					if (!string.IsNullOrWhiteSpace(thumbnailUrl))
+						result.ImageUrl = new Uri(thumbnailUrl);
+				}
+
+				string mainEntityOfPage = (string)articleInfo.SelectToken("mainEntityOfPage");
+				if (!string.IsNullOrWhiteSpace(mainEntityOfPage))
+					result.CanoncialUrl = new Uri(mainEntityOfPage);
+
+				if (includeDescription)
+				{
+					string description = (string)articleInfo.SelectToken("description");
+					if (!string.IsNullOrWhiteSpace(description))
+						result.Description = description;
+				}
+			}
 
 			return result;
 		}
