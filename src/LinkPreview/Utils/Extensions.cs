@@ -302,9 +302,22 @@ namespace MSiccDev.Libs.LinkTools
 						result.ImageUrl = new Uri(thumbnailUrl);
 				}
 
-				string mainEntityOfPage = (string)articleInfo.SelectToken("mainEntityOfPage");
+				string mainEntityOfPage = null;
+				try
+				{
+					mainEntityOfPage = (string)articleInfo.SelectToken("mainEntityOfPage");
+				}
+				catch (Exception ex)
+				{
+					if (ex is ArgumentException)
+					{
+						mainEntityOfPage = (string)articleInfo.SelectToken("mainEntityOfPage")?.SelectToken("@id");
+					}
+				}
+
 				if (!string.IsNullOrWhiteSpace(mainEntityOfPage))
 					result.CanoncialUrl = new Uri(mainEntityOfPage);
+
 
 				if (includeDescription)
 				{

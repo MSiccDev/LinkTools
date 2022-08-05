@@ -10,7 +10,7 @@
 		<ProjectVersion>1.0.22312</ProjectVersion>
 		<PrereleaseSuffix>-pre</PrereleaseSuffix>
 		<RevisionSeparator>.</RevisionSeparator>
-		<Revision>1</Revision>
+		<Revision>2</Revision>
 		<ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
 		<PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
 	</PropertyGroup>
