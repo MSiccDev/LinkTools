@@ -7,6 +7,7 @@ using MSiccDev.Libs.LinkTools.LinkPreview;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace MSiccDev.Libs.LinkTools
 {
@@ -268,17 +269,35 @@ namespace MSiccDev.Libs.LinkTools
 			//this way, we are catching them all!
 			try
 			{
-				schemaOrgNodes = applicationLdJsonNodes.Select(n => JObject.Parse(n.InnerText)).ToList();
+				foreach (var node in applicationLdJsonNodes)
+				{
+					var nodeObject = JObject.Parse(node.InnerText);
+
+					if (nodeObject != null)
+						schemaOrgNodes.Add(nodeObject);
+				}
+
 			}
 			catch (Exception ex)
 			{
 				if (ex is JsonReaderException)
 				{
-					var schemaOrgArrays = applicationLdJsonNodes.Select(n => JArray.Parse(n.InnerText)).ToList();
-
-					foreach (var array in schemaOrgArrays)
+					try
 					{
-						schemaOrgNodes.Add((JObject)array.FirstOrDefault());
+						var schemaOrgArrays = applicationLdJsonNodes.Select(n => JArray.Parse(n.InnerText)).ToList();
+
+						foreach (var array in schemaOrgArrays)
+						{
+							schemaOrgNodes.Add((JObject)array.FirstOrDefault());
+						}
+					}
+					catch (Exception ex2)
+					{
+						if (ex2 is JsonReaderException)
+						{
+							if (!schemaOrgNodes.Any())
+								return result;
+						}
 					}
 				}
 			}
