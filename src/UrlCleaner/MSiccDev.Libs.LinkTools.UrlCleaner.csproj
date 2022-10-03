@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -10,7 +10,7 @@
 		<ProjectVersion>1.0.22312</ProjectVersion>
 		<PrereleaseSuffix>-pre</PrereleaseSuffix>
 		<RevisionSeparator>.</RevisionSeparator>
-		<Revision>2</Revision>
+		<Revision>3</Revision>
 		<ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
 		<PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
 	</PropertyGroup>
