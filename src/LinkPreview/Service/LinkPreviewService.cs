@@ -42,7 +42,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = true,
-				Timeout = TimeSpan.FromSeconds(20)
+				Timeout = TimeSpan.FromSeconds(5)
 			};
 
 			_configWithOutCompression = new HttpClientConfiguration()
@@ -52,7 +52,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = false,
-				Timeout = TimeSpan.FromSeconds(20)
+				Timeout = TimeSpan.FromSeconds(5)
 			};
 
 			_httpClientInstance = _client.GetStaticClient(_configWithCompression);

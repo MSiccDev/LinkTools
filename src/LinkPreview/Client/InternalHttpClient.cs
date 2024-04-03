@@ -22,11 +22,12 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
             if (_httpClientInstance == null)
             {
-                var handler = new HttpClientHandler()
+                var handler = new SocketsHttpHandler()
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                     AllowAutoRedirect = configuration.AllowRedirect,
-                    UseCookies = configuration.UseCookies
+                    UseCookies = configuration.UseCookies,
+                    MaxConnectionsPerServer = 10
                 };
 
                 _httpClientInstance = new HttpClient(handler);
@@ -65,11 +66,12 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
         public HttpClient GetTemporaryClient(HttpClientConfiguration configuration)
         {
-            var handler = new HttpClientHandler()
+            var handler = new SocketsHttpHandler()
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 AllowAutoRedirect = configuration.AllowRedirect,
-                UseCookies = configuration.UseCookies
+                UseCookies = configuration.UseCookies,
+                MaxConnectionsPerServer = 10
             };
 
             var client = new HttpClient(handler);

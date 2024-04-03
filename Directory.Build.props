@@ -1,0 +1,19 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <LangVersion>Latest</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Nuget">
+        <Version>8.0.24141</Version>
+        <Authors>MSiccDev Software Development</Authors>
+        <Copyright>© 2024 MSiccDev Software Development</Copyright>
+        <PackageLicenseUrl>https://github.com/MSiccDev/LinkTools/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/MSiccDev/LinkTools/src/Core</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/MSiccDev/LinkTools</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageTags>link, preview, url, parsing, html, clean, campaign, parameters</PackageTags>
+    </PropertyGroup>
+    
+</Project>
