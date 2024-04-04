@@ -33,7 +33,8 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
 			var assembly = this.GetType().Assembly;
-			string libUserAgentString = $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
+			
+			string libUserAgentString = $"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
 
 			_configWithCompression = new HttpClientConfiguration()
 			{
@@ -42,7 +43,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = true,
-				Timeout = TimeSpan.FromSeconds(5)
+				Timeout = TimeSpan.FromSeconds(10)
 			};
 
 			_configWithOutCompression = new HttpClientConfiguration()
@@ -52,7 +53,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = false,
-				Timeout = TimeSpan.FromSeconds(5)
+				Timeout = TimeSpan.FromSeconds(10)
 			};
 
 			_httpClientInstance = _client.GetStaticClient(_configWithCompression);

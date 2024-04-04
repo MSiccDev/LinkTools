@@ -26,8 +26,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                     AllowAutoRedirect = configuration.AllowRedirect,
-                    UseCookies = configuration.UseCookies,
-                    MaxConnectionsPerServer = 10
+                    UseCookies = configuration.UseCookies
                 };
 
                 _httpClientInstance = new HttpClient(handler);
@@ -70,8 +69,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 AllowAutoRedirect = configuration.AllowRedirect,
-                UseCookies = configuration.UseCookies,
-                MaxConnectionsPerServer = 10
+                UseCookies = configuration.UseCookies
             };
 
             var client = new HttpClient(handler);
