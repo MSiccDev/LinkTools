@@ -26,7 +26,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
         public bool UseCompression { get; set; } = true;
 
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(10);
     }
 
     public class DefaultHttpClientConfiguration : HttpClientConfiguration

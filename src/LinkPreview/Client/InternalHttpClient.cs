@@ -22,7 +22,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
             if (_httpClientInstance == null)
             {
-                var handler = new HttpClientHandler()
+                var handler = new SocketsHttpHandler()
                 {
                     AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                     AllowAutoRedirect = configuration.AllowRedirect,
@@ -65,7 +65,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
         public HttpClient GetTemporaryClient(HttpClientConfiguration configuration)
         {
-            var handler = new HttpClientHandler()
+            var handler = new SocketsHttpHandler()
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 AllowAutoRedirect = configuration.AllowRedirect,
