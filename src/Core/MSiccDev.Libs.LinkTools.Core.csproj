@@ -1,87 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
-		<Configurations>Debug;Release;DebugNugetPush;ReleaseNugetPush</Configurations>
-		<SynchReleaseVersion>false</SynchReleaseVersion>
-	</PropertyGroup>
-	<!--Versioning-->
-	<PropertyGroup>
-		<ProjectVersion>1.0.22312</ProjectVersion>
-		<PrereleaseSuffix>-pre</PrereleaseSuffix>
-		<RevisionSeparator>.</RevisionSeparator>
-		<Revision>3</Revision>
-		<ReleaseVersion>$(ProjectVersion)$(RevisionSeparator)$(Revision)</ReleaseVersion>
-		<PreReleaseVersion>$(ProjectVersion)$(PrereleaseSuffix)$(RevisionSeparator)$(Revision)</PreReleaseVersion>
+		<TargetFramework>net8.0</TargetFramework>
+		<Configurations>Debug;Release</Configurations>
+		<Platforms>AnyCPU</Platforms>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyName>MSiccDev.Libs.LinkTools.Core</AssemblyName>
 		<RootNamespace>MSiccDev.Libs.LinkTools</RootNamespace>
 		<PackageId>MSiccDev.Libs.LinkTools.Core</PackageId>
-		<LangVersion>Latest</LangVersion>
-		<NeutralLanguage>en</NeutralLanguage>
-		<PackageLicenseUrl>https://github.com/MSiccDev/LinkTools/blob/master/LICENSE</PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/MSiccDev/LinkTools/src/Core</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/MSiccDev/LinkTools</RepositoryUrl>
-		<PackageReleaseNotes>MSiccDev LinkTools core lib</PackageReleaseNotes>
-		<PackageTags>link, preview, url, parsing, html, clean, campaign, parameters</PackageTags>
-		<Title>MSiccDev LinkTools core lib</Title>
-		<Summary>MSiccDev LinkTools core lib</Summary>
-		<Description>MSiccDev LinkTools core lib</Description>
-		<Owners>MSiccDev Software Development</Owners>
-		<Authors>MSiccDev Software Development</Authors>
-		<Copyright>© 2021 MSiccDev Software Development</Copyright>
-	</PropertyGroup>
-	<PropertyGroup>
 		<GenerateLibraryLayout>true</GenerateLibraryLayout>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
-		<DefineConstants>DEBUG</DefineConstants>
-		<PackageVersion>$(PreReleaseVersion)</PackageVersion>
-		<DebugType>full</DebugType>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)'=='DebugNugetPush' ">
-		<DefineConstants>DEBUG</DefineConstants>
-		<PackageVersion>$(PreReleaseVersion)</PackageVersion>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSource>True</IncludeSource>
-		<IncludeSymbols>True</IncludeSymbols>
-		<IncludeContentInPack>true</IncludeContentInPack>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)'=='Release' ">
-		<DefineConstants>RELEASE</DefineConstants>
-		<PackageVersion>$(ReleaseVersion)</PackageVersion>
-		<DebugType>pdbonly</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)'=='ReleaseNugetPush' ">
-		<DefineConstants>RELEASE</DefineConstants>
-		<PackageVersion>$(ReleaseVersion)</PackageVersion>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<DebugType>pdbonly</DebugType>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<IncludeContentInPack>true</IncludeContentInPack>
-	</PropertyGroup>
-	<Target Name="CleanOldNupkg" BeforeTargets="Build">
-		<ItemGroup>
-			<FilesToDelete Include="$(ProjectDir)$(BaseOutputPath)$(Configuration)\$(AssemblyName).*.nupkg">
-			</FilesToDelete>
-		</ItemGroup>
-		<Delete Files="@(FilesToDelete)" />
-		<Message Text="Old nupkg in $(ProjectDir)$(BaseOutputPath)$(Configuration) deleted." Importance="High">
-		</Message>
-	</Target>
-	<!--
-  You need to create your own nuget.config file 
-  see https://docs.github.com/en/free-pro-team@latest/packages/guides/configuring-dotnet-cli-for-use-with-github-packages
-  -->
-	<Target Name="PushDebug" AfterTargets="Pack" Condition="'$(Configuration)'=='DebugNugetPush'">
-		<Exec Command="dotnet nuget push &quot;$(ProjectDir)$(BaseOutputPath)$(Configuration)\$(PackageId).*.symbols.nupkg&quot; -s &quot;github&quot; " />
-	</Target>
-	<Target Name="PushRelease" AfterTargets="Pack" Condition="'$(Configuration)'=='ReleaseNugetPush'">
-		<Exec Command="dotnet nuget push &quot;$(ProjectDir)$(BaseOutputPath)$(Configuration)\$(PackageId).*.nupkg&quot; -s &quot;github&quot; " />
-	</Target>
 </Project>
