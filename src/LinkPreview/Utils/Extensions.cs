@@ -14,7 +14,7 @@ namespace MSiccDev.Libs.LinkTools
 	public static partial class Extensions
 	{
 
-		public static Uri TryGetLinkFromFacebookExitLink(this Uri url)
+		public static Uri? TryGetLinkFromFacebookExitLink(this Uri? url)
 		{
 			var urlString = Uri.UnescapeDataString(url.ToString());
 
@@ -36,7 +36,7 @@ namespace MSiccDev.Libs.LinkTools
 			return url;
 		}
 
-		public static LinkInfo ToLinkInfo(this string html, Uri url, bool includeDescription = false)
+		public static LinkInfo ToLinkInfo(this string html, Uri? url, bool includeDescription = false)
 		{
 			if (string.IsNullOrWhiteSpace(html))
 				throw new ArgumentException("html must not be null, empty or white space", nameof(html));

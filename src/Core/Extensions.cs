@@ -76,7 +76,7 @@ namespace MSiccDev.Libs.LinkTools
             return url;
         }
 
-        public static bool ContainsParameter(this Uri url, string key)
+        public static bool ContainsParameter(this Uri? url, string key)
         {
             var urlString = Uri.UnescapeDataString(url.ToString());
 
