@@ -335,7 +335,10 @@ namespace MSiccDev.Libs.LinkTools
 				}
 
 				if (!string.IsNullOrWhiteSpace(mainEntityOfPage))
-					result.CanoncialUrl = new Uri(mainEntityOfPage);
+				{
+					if (Uri.TryCreate(mainEntityOfPage, UriKind.Absolute, out var mainEntityOfPageUri))
+						result.CanoncialUrl = mainEntityOfPageUri;
+				}
 
 
 				if (includeDescription)
@@ -365,6 +368,15 @@ namespace MSiccDev.Libs.LinkTools
 				   typeString == "DiscussionForumPosting" ||
 				   typeString == "TechArticle" ||
 				   typeString == "ApiReference";
+		}
+
+		public static string GetScrapeOpsProxyUrl(this string url, string apiKey)
+		{
+			string scrapeOpsProxyUrl = "https://proxy.scrapeops.io/v1/".
+				AddParameterToUrl("api_key", apiKey).
+				AddParameterToUrl("url", WebUtility.UrlEncode(url));
+
+			return scrapeOpsProxyUrl;
 		}
 	}
 }

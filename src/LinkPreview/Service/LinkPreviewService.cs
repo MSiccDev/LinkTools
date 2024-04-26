@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
@@ -21,14 +22,18 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 {
 	public class LinkPreviewService : ILinkPreviewService
 	{
+		private readonly bool _useScrapeOpsForFailed;
 		private static HttpClient _httpClientInstance = null;
 		private readonly InternalHttpClient _client;
 		private readonly HttpClientConfiguration _configWithCompression;
 		private readonly HttpClientConfiguration _configWithOutCompression;
+		
+		private List<LinkPreviewRequest> ScrapeOpsQueue = new List<LinkPreviewRequest>();
 
 
-		public LinkPreviewService(string? userAgentString = null, int timeoutInSeconds = 10)
+		public LinkPreviewService(string? userAgentString = null, int timeoutInSeconds = 10, bool useScrapeOpsForFailed = false)
 		{
+			_useScrapeOpsForFailed = useScrapeOpsForFailed;
 			_client = new InternalHttpClient();
 
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
@@ -110,11 +115,24 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 						}
 						else if (statusCode >= 400)
 						{
-							var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+							if (statusCode == (int)HttpStatusCode.Forbidden)
+							{
+								if (_useScrapeOpsForFailed)
+								{
+									//some sites are protected, chances are high we are getting date from them using ScrapeOps.io
+									//as they have a concurrency limit, moving these to a queue is necessary
+									//the consumer of this has to check if the queue has entries 
+									if (!previewRequest.CurrentRequestedUrl.ToString().Contains("proxy.scrapeops.io"))
+										this.ScrapeOpsQueue.Add(previewRequest);
+								}
+							}
+							else
+							{
+								var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-							previewRequest.Error = new RequestError(statusCode, message);
-
-							Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
+								previewRequest.Error = new RequestError(statusCode, message);
+								Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
+							}
 						}
 						else
 						{
@@ -182,7 +200,6 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest)
 		{
-
 			var correctLink = previewRequest.CurrentRequestedUrl.TryGetLinkFromFacebookExitLink();
 
 			if (correctLink != null)
@@ -234,7 +251,6 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			{
 				Console.WriteLine($"got redirect ({response.StatusCode}) from {previewRequest.CurrentRequestedUrl} to {redirectUri} (https: {redirectUri.ToString().IsHttps()})");
 
-
 				if (redirectUri.ToString() == previewRequest.CurrentRequestedUrl.ToString())
 				{
 					if (!response.Headers.Any(header => header.Key == "Set-Cookie"))
@@ -271,6 +287,36 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			Console.WriteLine($"got redirect ({response.StatusCode}) from {previewRequest.CurrentRequestedUrl} with no location header)");
 
 			return null;
+		}
+
+		public async Task<List<LinkPreviewRequest>> RetryWithScrapeOps(string scrapeOpsApiKey)
+		{
+			ArgumentException.ThrowIfNullOrWhiteSpace(scrapeOpsApiKey);
+			
+			var result = new List<LinkPreviewRequest>();
+
+			if (this.ScrapeOpsQueue.Count == 0)
+				return result;
+
+			foreach (var previewRequest in this.ScrapeOpsQueue)
+			{
+				Console.WriteLine($"retrying with ScrapeOps for url {previewRequest.CurrentRequestedUrl} ...");
+
+				var proxyUrl = previewRequest.CurrentRequestedUrl.ToString().GetScrapeOpsProxyUrl(scrapeOpsApiKey);
+
+				if (!previewRequest.Redirects.ContainsKey(proxyUrl))
+				{
+					previewRequest.CurrentRequestedUrl = new Uri(proxyUrl);
+
+					var scrapeOpsResult = await GetLinkDataAsync(previewRequest);
+					
+					result.Add(scrapeOpsResult);
+				}
+			}
+
+			this.ScrapeOpsQueue.Clear();
+			
+			return result;
 		}
 
 		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage? response, bool includeDescription)
