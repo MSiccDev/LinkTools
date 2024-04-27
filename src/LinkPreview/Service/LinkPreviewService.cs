@@ -122,8 +122,15 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 									//some sites are protected, chances are high we are getting date from them using ScrapeOps.io
 									//as they have a concurrency limit, moving these to a queue is necessary
 									//the consumer of this has to check if the queue has entries 
-									if (!previewRequest.CurrentRequestedUrl.ToString().Contains("proxy.scrapeops.io"))
+									if (!previewRequest.CurrentRequestedUrl.ToString().StartsWith("https://proxy.scrapeops.io/v1/"))
 										this.ScrapeOpsQueue.Add(previewRequest);
+									else
+									{
+										var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+										previewRequest.Error = new RequestError(statusCode, message);
+										Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
+									}
 								}
 							}
 							else

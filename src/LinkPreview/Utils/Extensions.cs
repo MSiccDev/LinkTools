@@ -372,11 +372,13 @@ namespace MSiccDev.Libs.LinkTools
 
 		public static string GetScrapeOpsProxyUrl(this string url, string apiKey)
 		{
-			string scrapeOpsProxyUrl = "https://proxy.scrapeops.io/v1/".
+			var proxyPrefix = "https://proxy.scrapeops.io/v1/";
+			if (url.StartsWith("https://proxy.scrapeops.io/v1"))
+				return url;
+			
+			return proxyPrefix.
 				AddParameterToUrl("api_key", apiKey).
 				AddParameterToUrl("url", WebUtility.UrlEncode(url));
-
-			return scrapeOpsProxyUrl;
 		}
 	}
 }
