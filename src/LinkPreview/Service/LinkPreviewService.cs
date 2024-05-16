@@ -195,6 +195,12 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 					}
 				}
 
+				// //TODO
+				// if (ex is TaskCanceledException taskCanceledException)
+				// {
+				// 	
+				// }
+
 				previewRequest.Error = new RequestError(ex);
 
 				Console.WriteLine($"{ex.GetType()}:{ex.Message} for url {previewRequest.CurrentRequestedUrl} in {nameof(GetLinkDataAsync)}");
