@@ -110,7 +110,6 @@ namespace LinkToolsTestConsole
 		public static async Task TestScrapeOpsHeaders()
 		{
 			var apiClientKey = "{get your own key!}";
-			apiClientKey = "0b68441a-f6f7-4159-9740-cbeaf04bcdf6";
 
 			var service = new HeadersService();
 
