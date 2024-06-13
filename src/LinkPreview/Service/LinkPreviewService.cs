@@ -28,9 +28,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 		private readonly HttpClientConfiguration _configWithCompression;
 		private readonly HttpClientConfiguration _configWithOutCompression;
 		
-		private List<LinkPreviewRequest> ScrapeOpsQueue = new List<LinkPreviewRequest>();
-
-
+		
 		public LinkPreviewService(string? userAgentString = null, int timeoutInSeconds = 10, bool useScrapeOpsForFailed = false)
 		{
 			_useScrapeOpsForFailed = useScrapeOpsForFailed;
@@ -115,31 +113,11 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 						}
 						else if (statusCode >= 400)
 						{
-							if (statusCode == (int)HttpStatusCode.Forbidden)
-							{
-								if (_useScrapeOpsForFailed)
-								{
-									//some sites are protected, chances are high we are getting date from them using ScrapeOps.io
-									//as they have a concurrency limit, moving these to a queue is necessary
-									//the consumer of this has to check if the queue has entries 
-									if (!previewRequest.CurrentRequestedUrl.ToString().StartsWith("https://proxy.scrapeops.io/v1/"))
-										this.ScrapeOpsQueue.Add(previewRequest);
-									else
-									{
-										var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+							var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-										previewRequest.Error = new RequestError(statusCode, message);
-										Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
-									}
-								}
-							}
-							else
-							{
-								var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-								previewRequest.Error = new RequestError(statusCode, message);
-								Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
-							}
+							previewRequest.Error = new RequestError(statusCode, message);
+							Console.WriteLine(
+								$"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
 						}
 						else
 						{
@@ -301,36 +279,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 			return null;
 		}
-
-		public async Task<List<LinkPreviewRequest>> RetryWithScrapeOps(string scrapeOpsApiKey)
-		{
-			ArgumentException.ThrowIfNullOrWhiteSpace(scrapeOpsApiKey);
-			
-			var result = new List<LinkPreviewRequest>();
-
-			if (this.ScrapeOpsQueue.Count == 0)
-				return result;
-
-			foreach (var previewRequest in this.ScrapeOpsQueue)
-			{
-				Console.WriteLine($"retrying with ScrapeOps for url {previewRequest.CurrentRequestedUrl} ...");
-
-				var proxyUrl = previewRequest.CurrentRequestedUrl.ToString().GetScrapeOpsProxyUrl(scrapeOpsApiKey);
-
-				if (!previewRequest.Redirects.ContainsKey(proxyUrl))
-				{
-					previewRequest.CurrentRequestedUrl = new Uri(proxyUrl);
-
-					var scrapeOpsResult = await GetLinkDataAsync(previewRequest);
-					
-					result.Add(scrapeOpsResult);
-				}
-			}
-
-			this.ScrapeOpsQueue.Clear();
-			
-			return result;
-		}
+		
 
 		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage? response, bool includeDescription)
 		{
