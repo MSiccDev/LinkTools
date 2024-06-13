@@ -21,13 +21,13 @@ namespace LinkToolsTestConsole
 		{
 			Console.WriteLine("Hello World!");
 
-			await TestScrapeOpsHeaders();
+			//await TestScrapeOpsHeaders();
 
-			// await UrlCleaner.Current.InitializeAsync();
-			//
-			// _linkPreviewService = new LinkPreviewService();
-			//
-			// await TestGetAllLinksParallelAsync();
+			await UrlCleaner.Current.InitializeAsync();
+			
+			_linkPreviewService = new LinkPreviewService();
+			
+			await TestGetAllLinksParallelAsync();
 
 
 
@@ -84,6 +84,13 @@ namespace LinkToolsTestConsole
 				Console.WriteLine($"Error requesting link {result.OriginalUrl}");
 			}
 
+			foreach (var result in results.Where(r => r.Error == null))
+			{
+				if (result.Result != null)
+					Console.WriteLine($"{result.OriginalUrl}: Title - {result.Result.Title}; ImageUrl = {result.Result.ImageUrl}");
+			}
+			
+			Console.WriteLine($"finsihed loading {requests.Count} requests");
 		}
 
 		public static async Task TestCleanUrlsFromFileAsync()
@@ -103,6 +110,7 @@ namespace LinkToolsTestConsole
 		public static async Task TestScrapeOpsHeaders()
 		{
 			var apiClientKey = "{get your own key!}";
+			apiClientKey = "0b68441a-f6f7-4159-9740-cbeaf04bcdf6";
 
 			var service = new HeadersService();
 
