@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
@@ -21,14 +22,16 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 {
 	public class LinkPreviewService : ILinkPreviewService
 	{
+		private readonly bool _useScrapeOpsForFailed;
 		private static HttpClient _httpClientInstance = null;
 		private readonly InternalHttpClient _client;
 		private readonly HttpClientConfiguration _configWithCompression;
 		private readonly HttpClientConfiguration _configWithOutCompression;
-
-
-		public LinkPreviewService()
+		
+		
+		public LinkPreviewService(string? userAgentString = null, int timeoutInSeconds = 10, bool useScrapeOpsForFailed = false)
 		{
+			_useScrapeOpsForFailed = useScrapeOpsForFailed;
 			_client = new InternalHttpClient();
 
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
@@ -39,21 +42,21 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			_configWithCompression = new HttpClientConfiguration()
 			{
 				AcceptHeader = "text/html",
-				CustomUserAgentString = libUserAgentString,
+				CustomUserAgentString = string.IsNullOrWhiteSpace(userAgentString) ? libUserAgentString : userAgentString,
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = true,
-				Timeout = TimeSpan.FromSeconds(10)
+				Timeout = TimeSpan.FromSeconds(timeoutInSeconds)
 			};
 
 			_configWithOutCompression = new HttpClientConfiguration()
 			{
 				AcceptHeader = "text/html",
-				CustomUserAgentString = libUserAgentString,
+				CustomUserAgentString = string.IsNullOrWhiteSpace(userAgentString) ? libUserAgentString : userAgentString,
 				AllowRedirect = false,
 				UseCookies = false,
 				UseCompression = false,
-				Timeout = TimeSpan.FromSeconds(10)
+				Timeout = TimeSpan.FromSeconds(timeoutInSeconds)
 			};
 
 			_httpClientInstance = _client.GetStaticClient(_configWithCompression);
@@ -82,7 +85,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				{
 					if (!isCircleRedirect)
 					{
-						Console.WriteLine($"sending request for url {previewRequest.CurrentRequestedUrl}");
+						//Console.WriteLine($"sending request for url {previewRequest.CurrentRequestedUrl}");
 
 						var request = new HttpRequestMessage(currentRequestedUrlString.IsHttps() ? HttpMethod.Get : HttpMethod.Head, previewRequest.CurrentRequestedUrl);
 						request.Headers.Host = previewRequest.CurrentRequestedUrl.Host;
@@ -102,7 +105,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 							previewRequest.Redirects.Add(previewRequest.CurrentRequestedUrl.ToString(), response);
 
 						var statusCode = (int)response.StatusCode;
-						Console.WriteLine($"received response {statusCode} from url {request.RequestUri}");
+						//Console.WriteLine($"received response {statusCode} from url {request.RequestUri}");
 
 						if (statusCode >= 300 && statusCode <= 399)
 						{
@@ -113,8 +116,8 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 							var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 							previewRequest.Error = new RequestError(statusCode, message);
-
-							Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
+							Console.WriteLine(
+								$"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
 						}
 						else
 						{
@@ -170,6 +173,12 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 					}
 				}
 
+				// //TODO
+				// if (ex is TaskCanceledException taskCanceledException)
+				// {
+				// 	
+				// }
+
 				previewRequest.Error = new RequestError(ex);
 
 				Console.WriteLine($"{ex.GetType()}:{ex.Message} for url {previewRequest.CurrentRequestedUrl} in {nameof(GetLinkDataAsync)}");
@@ -182,7 +191,6 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest)
 		{
-
 			var correctLink = previewRequest.CurrentRequestedUrl.TryGetLinkFromFacebookExitLink();
 
 			if (correctLink != null)
@@ -214,7 +222,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			}
 		}
 
-		private async Task<HttpResponseMessage> TryGetResponseMessageWithoutCompressionAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption)
+		private async Task<HttpResponseMessage?> TryGetResponseMessageWithoutCompressionAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption)
 		{
 			var tempClient = _client.GetTemporaryClient(_configWithOutCompression);
 
@@ -226,14 +234,13 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 		}
 
 
-		private async Task<LinkPreviewRequest> HandleRedirect(HttpResponseMessage response, LinkPreviewRequest previewRequest)
+		private async Task<LinkPreviewRequest> HandleRedirect(HttpResponseMessage? response, LinkPreviewRequest previewRequest)
 		{
 			var redirectUri = response.Headers.Location;
 
 			if (redirectUri != null)
 			{
 				Console.WriteLine($"got redirect ({response.StatusCode}) from {previewRequest.CurrentRequestedUrl} to {redirectUri} (https: {redirectUri.ToString().IsHttps()})");
-
 
 				if (redirectUri.ToString() == previewRequest.CurrentRequestedUrl.ToString())
 				{
@@ -272,8 +279,9 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 			return null;
 		}
+		
 
-		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage response, bool includeDescription)
+		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage? response, bool includeDescription)
 		{
 			var responseContentStream = await response.Content.ReadAsStreamAsync();
 
@@ -287,7 +295,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		private string TryExtractCookieValueFromLastResponse(LinkPreviewRequest previewRequest)
 		{
-			HttpResponseMessage cookieContainingResponse = null;
+			HttpResponseMessage? cookieContainingResponse = null;
 			var lastResponse = previewRequest.Redirects.LastOrDefault();
 
 			cookieContainingResponse = lastResponse.Value == null ? previewRequest.OriginalResponse : lastResponse.Value;

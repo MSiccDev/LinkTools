@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using MSiccDev.Libs.LinkTools;
 using MSiccDev.Libs.LinkTools.LinkPreview;
-
+using MSiccDev.Libs.LinkTools.ScrapeOpsHeaders;
 using Newtonsoft.Json;
 
 namespace LinkToolsTestConsole
@@ -21,10 +21,12 @@ namespace LinkToolsTestConsole
 		{
 			Console.WriteLine("Hello World!");
 
+			//await TestScrapeOpsHeaders();
+
 			await UrlCleaner.Current.InitializeAsync();
-
+			
 			_linkPreviewService = new LinkPreviewService();
-
+			
 			await TestGetAllLinksParallelAsync();
 
 
@@ -39,7 +41,6 @@ namespace LinkToolsTestConsole
 
 			Console.ReadLine();
 		}
-
 
 		public static async Task<List<Uri>> GetUrisFromJsonAsync()
 		{
@@ -83,6 +84,13 @@ namespace LinkToolsTestConsole
 				Console.WriteLine($"Error requesting link {result.OriginalUrl}");
 			}
 
+			foreach (var result in results.Where(r => r.Error == null))
+			{
+				if (result.Result != null)
+					Console.WriteLine($"{result.OriginalUrl}: Title - {result.Result.Title}; ImageUrl = {result.Result.ImageUrl}");
+			}
+			
+			Console.WriteLine($"finsihed loading {requests.Count} requests");
 		}
 
 		public static async Task TestCleanUrlsFromFileAsync()
@@ -97,5 +105,49 @@ namespace LinkToolsTestConsole
 				Console.WriteLine($"Cleaned: {cleanedUrl}");
 			}
 		}
+
+
+		public static async Task TestScrapeOpsHeaders()
+		{
+			var apiClientKey = "{get your own key!}";
+
+			var service = new HeadersService();
+
+			var useragents = await service.GetUserAgents(apiClientKey);
+
+			if (useragents != null)
+			{
+				Console.WriteLine($"Got {useragents.Results?.Count} results:");
+				foreach (var result in useragents.Results)
+					Console.WriteLine(result);
+			}
+			else
+			{
+				Console.WriteLine("No results, something must have gone wrong.");
+			}
+
+			var headers = await service.GetBrowserHeaders(apiClientKey);
+
+			if (headers != null)
+			{
+				Console.WriteLine($"Got {headers.Results?.Count} results:");
+				foreach (var result in headers.Results)
+				{
+					Console.WriteLine("HeadersCollection:");
+					foreach (var pair in result)
+					{
+						Console.WriteLine($"{pair.Key},{pair.Value}");
+					}
+				}
+			}
+			else
+			{
+				Console.WriteLine("No results, something must have gone wrong.");
+			}
+			
+			
+		}
+		
+		
 	}
 }

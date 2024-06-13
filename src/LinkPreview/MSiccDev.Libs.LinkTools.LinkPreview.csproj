@@ -13,11 +13,13 @@
 		<GenerateLibraryLayout>true</GenerateLibraryLayout>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.60" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
 		<ProjectReference Include="..\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
+		<ProjectReference Include="..\ScrapeOpsHeaders\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders.csproj" />
+		<ProjectReference Include="..\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
 	</ItemGroup>
 </Project>

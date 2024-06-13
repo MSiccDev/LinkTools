@@ -14,7 +14,7 @@ namespace MSiccDev.Libs.LinkTools
 	public static partial class Extensions
 	{
 
-		public static Uri TryGetLinkFromFacebookExitLink(this Uri url)
+		public static Uri? TryGetLinkFromFacebookExitLink(this Uri? url)
 		{
 			var urlString = Uri.UnescapeDataString(url.ToString());
 
@@ -36,7 +36,7 @@ namespace MSiccDev.Libs.LinkTools
 			return url;
 		}
 
-		public static LinkInfo ToLinkInfo(this string html, Uri url, bool includeDescription = false)
+		public static LinkInfo ToLinkInfo(this string html, Uri? url, bool includeDescription = false)
 		{
 			if (string.IsNullOrWhiteSpace(html))
 				throw new ArgumentException("html must not be null, empty or white space", nameof(html));
@@ -212,46 +212,56 @@ namespace MSiccDev.Libs.LinkTools
 			return result;
 		}
 
-		public static Uri TryGetImageUrlFromContent(this HtmlDocument document)
+		public static Uri? TryGetImageUrlFromContent(this HtmlDocument document, bool ignoreSize = false)
 		{
 			var allImgs = document.DocumentNode.Descendants("img").Where(n => !string.IsNullOrWhiteSpace(n.GetAttributeValue("src", null))).ToList();
 
-			var imgsWithSize = allImgs.Where(n => n.GetAttributeValue("width", null) != null && n.GetAttributeValue("height", null) != null).ToList();
-
-			var imgsBigEnough = new List<HtmlNode>();
-
-			foreach (var img in imgsWithSize)
+			if (ignoreSize)
 			{
-				var height = Convert.ToInt32(img.Attributes["height"].Value);
-				var width = Convert.ToInt32(img.Attributes["width"].Value);
+				var imgUrl = allImgs.FirstOrDefault()?.GetAttributeValue("src", null);
 
-				if (height <= 50 || width <= 50)
-					continue;
-
-				if (width > height)
-				{
-					if (width / height > 3)
-						continue;
-				}
-				else
-				{
-					if (height / width > 3)
-						continue;
-				}
-
-				imgsBigEnough.Add(img);
+				return string.IsNullOrWhiteSpace(imgUrl) ? null : new Uri(imgUrl);
 			}
-
-			if (imgsBigEnough.Any())
+			else
 			{
-				var orderImgsBigEnoughBySize = imgsBigEnough.OrderByDescending(n => Convert.ToInt32(n.Attributes["width"].Value)).ThenByDescending(n => Convert.ToInt32(n.Attributes["height"].Value)).ToList();
+				var imgsWithSize = allImgs.Where(n =>
+					n.GetAttributeValue("width", null) != null && n.GetAttributeValue("height", null) != null).ToList();
+
+				var imgsBigEnough = new List<HtmlNode>();
+
+				foreach (var img in imgsWithSize)
+				{
+					var height = Convert.ToInt32(img.Attributes["height"].Value);
+					var width = Convert.ToInt32(img.Attributes["width"].Value);
+
+					if (height <= 50 || width <= 50)
+						continue;
+
+					if (width > height)
+					{
+						if (width / height > 3)
+							continue;
+					}
+					else
+					{
+						if (height / width > 3)
+							continue;
+					}
+
+					imgsBigEnough.Add(img);
+				}
+
+				if (imgsBigEnough.Count == 0) return null;
+
+				var orderImgsBigEnoughBySize = imgsBigEnough
+					.OrderByDescending(n => Convert.ToInt32(n.Attributes["width"].Value))
+					.ThenByDescending(n => Convert.ToInt32(n.Attributes["height"].Value)).ToList();
 
 				var imgUrl = orderImgsBigEnoughBySize.FirstOrDefault().GetAttributeValue("src", null);
 
 				return !string.IsNullOrWhiteSpace(imgUrl) ? null : new Uri(imgUrl);
-			}
 
-			return null;
+			}
 		}
 
 
@@ -335,7 +345,10 @@ namespace MSiccDev.Libs.LinkTools
 				}
 
 				if (!string.IsNullOrWhiteSpace(mainEntityOfPage))
-					result.CanoncialUrl = new Uri(mainEntityOfPage);
+				{
+					if (Uri.TryCreate(mainEntityOfPage, UriKind.Absolute, out var mainEntityOfPageUri))
+						result.CanoncialUrl = mainEntityOfPageUri;
+				}
 
 
 				if (includeDescription)
@@ -365,6 +378,17 @@ namespace MSiccDev.Libs.LinkTools
 				   typeString == "DiscussionForumPosting" ||
 				   typeString == "TechArticle" ||
 				   typeString == "ApiReference";
+		}
+
+		public static string GetScrapeOpsProxyUrl(this string url, string apiKey)
+		{
+			var proxyPrefix = "https://proxy.scrapeops.io/v1/";
+			if (url.StartsWith("https://proxy.scrapeops.io/v1"))
+				return url;
+			
+			return proxyPrefix.
+				AddParameterToUrl("api_key", apiKey).
+				AddParameterToUrl("url", WebUtility.UrlEncode(url));
 		}
 	}
 }

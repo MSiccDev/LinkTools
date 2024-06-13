@@ -24,7 +24,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             this.ExceptionType = ex.GetType();
             this.Message = ex.Message;
         }
-
+        
         public HttpStatusCode? StatusCode { get; set; }
         public Exception Exception { get; set; }
 

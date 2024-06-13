@@ -18,6 +18,8 @@
 		<ProjectReference Include="..\src\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
 		<ProjectReference Include="..\src\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
 		<ProjectReference Include="..\src\LinkPreview\MSiccDev.Libs.LinkTools.LinkPreview.csproj" />
+		<ProjectReference Include="..\src\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders.csproj" />
+		<ProjectReference Include="..\src\ScrapeOpsHeaders\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders.csproj" />
 		<ProjectReference Include="..\src\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
 	</ItemGroup>
 </Project>
