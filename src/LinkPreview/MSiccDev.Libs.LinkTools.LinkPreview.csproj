@@ -17,9 +17,9 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\LinkTools\src\ScrapeOpsHeaders\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders.csproj" />
 		<ProjectReference Include="..\Core\MSiccDev.Libs.LinkTools.Core.csproj" />
 		<ProjectReference Include="..\Data\MSiccDev.Libs.LinkTools.Data.csproj" />
-		<ProjectReference Include="..\ScrapeOpsHeaders\MSiccDev.Libs.LinkTools.ScrapeOpsHeaders.csproj" />
 		<ProjectReference Include="..\UrlCleaner\MSiccDev.Libs.LinkTools.UrlCleaner.csproj" />
 	</ItemGroup>
 </Project>
