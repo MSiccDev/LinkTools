@@ -17,21 +17,25 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
+using MSiccDev.Libs.LinkTools.ScrapeOpsHeaders;
 
 namespace MSiccDev.Libs.LinkTools.LinkPreview
 {
 	public class LinkPreviewService : ILinkPreviewService
 	{
-		private readonly bool _useScrapeOpsForFailed;
-		private static HttpClient _httpClientInstance = null;
+		private static HttpClient? _httpClientInstance;
 		private readonly InternalHttpClient _client;
 		private readonly HttpClientConfiguration _configWithCompression;
 		private readonly HttpClientConfiguration _configWithOutCompression;
 		
+		private readonly IHeadersService _headersService;
 		
-		public LinkPreviewService(string? userAgentString = null, int timeoutInSeconds = 10, bool useScrapeOpsForFailed = false)
+		private List<Dictionary<string,string>>? _scrapeOpsHeadersCollection;
+
+		public LinkPreviewService(IHeadersService headersService, string? userAgentString = null, int timeoutInSeconds = 10)
 		{
-			_useScrapeOpsForFailed = useScrapeOpsForFailed;
+			_headersService = headersService;
 			_client = new InternalHttpClient();
 
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
@@ -63,9 +67,35 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		}
 
+		public async Task<HeadersResponse?> RefreshScrapeOpsHeadersAsync(string apiKey)
+		{
+			var latestHeaders = await _headersService.GetBrowserHeaders(apiKey);
 
+			if (latestHeaders == null)
+				return null;
+			
+			_scrapeOpsHeadersCollection = latestHeaders.Results;
 
-		public async Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest previewRequest, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false, bool addCookieToRedirectedRequest = false, bool includeDescription = false)
+			return latestHeaders;
+		}
+
+		public void SetCurrentHeadersCollection(HeadersResponse headersResponse) => 
+			_scrapeOpsHeadersCollection = headersResponse.Results;
+
+		public Dictionary<string, string>? GetRandomScrapeOpsHeaders()
+		{
+			if (_scrapeOpsHeadersCollection is null or { Count: 0 })
+				return null;
+            
+			Random random = new Random();
+			var randomIndex = random.Next(0, _scrapeOpsHeadersCollection.Count - 1);
+
+			return _scrapeOpsHeadersCollection[randomIndex];
+		}
+		
+		
+
+		public async Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest previewRequest, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false, bool addCookieToRedirectedRequest = false, bool includeDescription = false, bool useScrapeOpsHeaders = false)
 		{
 			try
 			{
@@ -88,6 +118,10 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 						//Console.WriteLine($"sending request for url {previewRequest.CurrentRequestedUrl}");
 
 						var request = new HttpRequestMessage(currentRequestedUrlString.IsHttps() ? HttpMethod.Get : HttpMethod.Head, previewRequest.CurrentRequestedUrl);
+						
+						if (useScrapeOpsHeaders)
+							ConfigureRequestHeaders(request);
+						
 						request.Headers.Host = previewRequest.CurrentRequestedUrl.Host;
 
 						if (!string.IsNullOrWhiteSpace(cookieHeaderValue))
@@ -187,6 +221,21 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		}
 
+		private void ConfigureRequestHeaders(HttpRequestMessage request)
+		{
+			//parse headers and add them to the request
+			var randomHeaders = GetRandomScrapeOpsHeaders();
+			
+			if (randomHeaders == null)
+				return;
+			
+			request.Headers.Clear();
+
+			foreach (var header in randomHeaders)
+			{
+				request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+			}
+		}
 
 
 		private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest)

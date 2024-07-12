@@ -15,7 +15,12 @@ public class HeadersService : IHeadersService
 
         var json = await Client.GetStringAsync(requestUrl);
 
-        return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<UserAgentsResponse>(json);
+        var result = string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<UserAgentsResponse>(json);
+
+        if (result != null)
+            result.Raw = json;
+
+        return result;
     }
     
     public async Task<HeadersResponse?> GetBrowserHeaders(string apiKey, int count = 10)
@@ -24,7 +29,12 @@ public class HeadersService : IHeadersService
         
         var json = await Client.GetStringAsync(requestUrl);
 
-        return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<HeadersResponse>(json);
+        var result = string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<HeadersResponse>(json);
+        
+        if (result != null)
+            result.Raw = json;
+
+        return result;
     }
 }
 
