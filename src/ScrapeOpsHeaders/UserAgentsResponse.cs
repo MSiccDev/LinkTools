@@ -6,4 +6,7 @@ public class UserAgentsResponse
 {
     [JsonPropertyName("result")]
     public List<string>? Results { get; set; }
+    
+    [JsonIgnore]
+    public string? Raw { get; set; }
 }
