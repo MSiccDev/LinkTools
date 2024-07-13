@@ -24,8 +24,10 @@ namespace LinkToolsTestConsole
 			//await TestScrapeOpsHeaders();
 
 			await UrlCleaner.Current.InitializeAsync();
-			
-			_linkPreviewService = new LinkPreviewService();
+
+			var headerService = new HeadersService();
+			headerService.GetBrowserHeaders("956157ed-aa0a-48e1-af57-465666ffd1f2", 10);
+			_linkPreviewService = new LinkPreviewService(headerService);
 			
 			await TestGetAllLinksParallelAsync();
 
@@ -74,7 +76,7 @@ namespace LinkToolsTestConsole
 
 			Console.WriteLine($"got {requests.Count} link preview requests");
 
-			var tasks = requests.Select(r => _linkPreviewService.GetLinkDataAsync(r, includeDescription: true)).ToList();
+			var tasks = requests.Select(r => _linkPreviewService.GetLinkDataAsync(r, includeDescription: true, useScrapeOpsHeaders: true)).ToList();
 
 			Console.WriteLine($"running all requests");
 			var results = await Task.WhenAll(tasks).ConfigureAwait(false);
