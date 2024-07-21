@@ -127,6 +127,8 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 						if (!string.IsNullOrWhiteSpace(cookieHeaderValue))
 							request.Headers.Add("Cookie", cookieHeaderValue);
 
+						previewRequest.UsedHeaders = request.Headers.ToDictionary();
+
 						HttpCompletionOption completionOption = HttpCompletionOption.ResponseHeadersRead;
 
 						var response = noCompression ?
