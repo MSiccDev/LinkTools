@@ -95,8 +95,6 @@ namespace MSiccDev.Libs.LinkTools
             Uri result = url;
             var urlString = result.ToString();
 
-            //var regexPattern = @"([_a-zA-Z0-9=]+)";
-
             var queryParams = GetQueryParameters(result);
             var fragments = GetFragmentParameters(result);
 

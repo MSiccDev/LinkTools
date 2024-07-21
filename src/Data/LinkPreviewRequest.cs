@@ -29,7 +29,8 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
         public Dictionary<string, HttpResponseMessage?> Redirects = new Dictionary<string, HttpResponseMessage?>();
 
-
+        public Dictionary<string, IEnumerable<string>> UsedHeaders = new Dictionary<string, IEnumerable<string>>();
+        
         public RequestError? Error { get; set; }
 
         [JsonIgnore]
