@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <PropertyGroup Label="Nuget">
-        <Version>8.0.24141</Version>
+        <Version>8.0.24331</Version>
         <Authors>MSiccDev Software Development</Authors>
         <Copyright>© 2024 MSiccDev Software Development</Copyright>
         <PackageLicenseUrl>https://github.com/MSiccDev/LinkTools/blob/master/LICENSE</PackageLicenseUrl>
