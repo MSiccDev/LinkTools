@@ -38,7 +38,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
     {
         public NoCompressionHttpClientConfiguration()
         {
-            this.UseCompression = false;
+            UseCompression = false;
         }
     }
 }

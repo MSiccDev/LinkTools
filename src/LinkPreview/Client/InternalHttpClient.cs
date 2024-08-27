@@ -49,7 +49,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
                 if (string.IsNullOrEmpty(configuration.CustomUserAgentString))
                 {
-                    var assembly = this.GetType().Assembly;
+                    var assembly = GetType().Assembly;
 
                     _httpClientInstance.DefaultRequestHeaders.UserAgent.Add(
                         new ProductInfoHeaderValue(string.IsNullOrEmpty(configuration.DefaultUserAgent) ? assembly.GetName().Name : configuration.DefaultUserAgent,
@@ -91,7 +91,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
             if (string.IsNullOrEmpty(configuration.CustomUserAgentString))
             {
-                var assembly = this.GetType().Assembly;
+                var assembly = GetType().Assembly;
 
                 client.DefaultRequestHeaders.UserAgent.Add(
                     new ProductInfoHeaderValue(string.IsNullOrEmpty(configuration.DefaultUserAgent) ? assembly.GetName().Name : configuration.DefaultUserAgent,

@@ -39,7 +39,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			_client = new InternalHttpClient();
 
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
-			var assembly = this.GetType().Assembly;
+			var assembly = GetType().Assembly;
 			
 			string libUserAgentString = $"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
 

@@ -25,7 +25,7 @@ namespace MSiccDev.Libs.LinkTools
         {
             _campaignParams = await LoadDefaultParamsFromJsonFile();
 
-            IsInitialized = true;
+            this.IsInitialized = true;
         }
 
         private async Task<CampaignParams> LoadDefaultParamsFromJsonFile()
