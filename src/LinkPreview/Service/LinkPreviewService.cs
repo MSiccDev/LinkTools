@@ -41,7 +41,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
 			var assembly = GetType().Assembly;
 			
-			string libUserAgentString = $"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
+			var libUserAgentString = $"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
 
 			_configWithCompression = new HttpClientConfiguration()
 			{
@@ -87,7 +87,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			if (_scrapeOpsHeadersCollection is null or { Count: 0 })
 				return null;
             
-			Random random = new Random();
+			var random = new Random();
 			var randomIndex = random.Next(0, _scrapeOpsHeadersCollection.Count - 1);
 
 			return _scrapeOpsHeadersCollection[randomIndex];
@@ -129,7 +129,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 						previewRequest.UsedHeaders = request.Headers.ToDictionary();
 
-						HttpCompletionOption completionOption = HttpCompletionOption.ResponseHeadersRead;
+						var completionOption = HttpCompletionOption.ResponseHeadersRead;
 
 						var response = noCompression ?
 									   await _httpClientInstance.SendAsync(request, completionOption) :
@@ -355,7 +355,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 			var cookieValues = cookies.Value.Select(cookie => cookie.Substring(0, cookie.IndexOf(";") + 1)).ToList();
 
-			StringBuilder cookieValueStringBuilder = new StringBuilder();
+			var cookieValueStringBuilder = new StringBuilder();
 
 			foreach (var value in cookieValues)
 				cookieValueStringBuilder.Append($"{value} ");
