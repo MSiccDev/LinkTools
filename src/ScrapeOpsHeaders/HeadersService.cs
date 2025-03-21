@@ -13,7 +13,7 @@ public class HeadersService : IHeadersService
     {
         var requestUrl = $"{BaseUrl}user-agents?api_key={apiKey}&num_result={count}";
 
-        var json = await Client.GetStringAsync(requestUrl);
+        var json = await HeadersService.Client.GetStringAsync(requestUrl);
 
         var result = string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<UserAgentsResponse>(json);
 
@@ -27,7 +27,7 @@ public class HeadersService : IHeadersService
     {
         var requestUrl = $"{BaseUrl}browser-headers?api_key={apiKey}&num_result={count}";
         
-        var json = await Client.GetStringAsync(requestUrl);
+        var json = await HeadersService.Client.GetStringAsync(requestUrl);
 
         var result = string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<HeadersResponse>(json);
         

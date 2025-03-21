@@ -26,7 +26,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
             {
                 var urls = request.Redirects.Keys.ToList();
 
-                for (int i = 0; i < urls.Count; i++)
+                for (var i = 0; i < urls.Count; i++)
                 {
                     if (i == 0)
                     {

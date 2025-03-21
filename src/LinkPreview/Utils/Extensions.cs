@@ -145,7 +145,7 @@ namespace MSiccDev.Libs.LinkTools
 			{
 				string canonical = null;
 
-				foreach (HtmlNode link in links)
+				foreach (var link in links)
 					if (link.GetAttributeValue("rel", null) != "canonical")
 						continue;
 					else
@@ -314,17 +314,17 @@ namespace MSiccDev.Libs.LinkTools
 
 			if (articleInfo != null)
 			{
-				string headline = (string)articleInfo.SelectToken("headline");
+				var headline = (string)articleInfo.SelectToken("headline");
 				if (!string.IsNullOrWhiteSpace(headline))
 					result.Title = headline;
 
 
-				string imageUrl = (string)articleInfo.SelectToken("image")?.SelectToken("url");
+				var imageUrl = (string)articleInfo.SelectToken("image")?.SelectToken("url");
 				if (!string.IsNullOrWhiteSpace(imageUrl))
 					result.ImageUrl = new Uri(imageUrl);
 				else
 				{
-					string thumbnailUrl = (string)articleInfo.SelectToken("thumbnailUrl");
+					var thumbnailUrl = (string)articleInfo.SelectToken("thumbnailUrl");
 					if (!string.IsNullOrWhiteSpace(thumbnailUrl))
 						result.ImageUrl = new Uri(thumbnailUrl);
 				}
@@ -351,7 +351,7 @@ namespace MSiccDev.Libs.LinkTools
 
 				if (includeDescription)
 				{
-					string description = (string)articleInfo.SelectToken("description");
+					var description = (string)articleInfo.SelectToken("description");
 					if (!string.IsNullOrWhiteSpace(description))
 						result.Description = description;
 				}

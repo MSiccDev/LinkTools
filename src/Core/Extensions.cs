@@ -161,7 +161,7 @@ namespace MSiccDev.Libs.LinkTools
 
         public static string ToPlainTextWithoutUrls(this string text, bool removeOnlyFirst = false)
         {
-            string cleanedText = "";
+            var cleanedText = "";
 
             var urls = text.ToPlainUrls();
 

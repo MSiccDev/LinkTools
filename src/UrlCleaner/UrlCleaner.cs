@@ -25,7 +25,7 @@ namespace MSiccDev.Libs.LinkTools
         {
             _campaignParams = await LoadDefaultParamsFromJsonFile();
 
-            IsInitialized = true;
+            this.IsInitialized = true;
         }
 
         private async Task<CampaignParams> LoadDefaultParamsFromJsonFile()
@@ -92,7 +92,7 @@ namespace MSiccDev.Libs.LinkTools
 
         public Uri CleanUrl(Uri url)
         {
-            Uri result = url;
+            var result = url;
             var urlString = result.ToString();
 
             var queryParams = GetQueryParameters(result);
