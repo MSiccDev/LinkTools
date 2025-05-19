@@ -25,46 +25,18 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 	public class LinkPreviewService : ILinkPreviewService
 	{
 		private static HttpClient? _httpClientInstance;
-		private readonly InternalHttpClient _client;
-		private readonly HttpClientConfiguration _configWithCompression;
-		private readonly HttpClientConfiguration _configWithOutCompression;
-		
+
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IHeadersService _headersService;
 		
 		private List<Dictionary<string,string>>? _scrapeOpsHeadersCollection;
 
-		public LinkPreviewService(IHeadersService headersService, string? userAgentString = null, int timeoutInSeconds = 10)
+		public LinkPreviewService(IHttpClientFactory httpClientFactory, IHeadersService headersService)
 		{
+			_httpClientFactory = httpClientFactory;
 			_headersService = headersService;
-			_client = new InternalHttpClient();
-
-			//following https://developers.whatismybrowser.com/learn/browser-detection/user-agents/user-agent-best-practices
-			var assembly = GetType().Assembly;
 			
-			var libUserAgentString = $"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Safari/605.1.15 {assembly.GetName().Name}/{assembly.GetName().Version.ToString()}";
-
-			_configWithCompression = new HttpClientConfiguration()
-			{
-				AcceptHeader = "text/html",
-				CustomUserAgentString = string.IsNullOrWhiteSpace(userAgentString) ? libUserAgentString : userAgentString,
-				AllowRedirect = false,
-				UseCookies = false,
-				UseCompression = true,
-				Timeout = TimeSpan.FromSeconds(timeoutInSeconds)
-			};
-
-			_configWithOutCompression = new HttpClientConfiguration()
-			{
-				AcceptHeader = "text/html",
-				CustomUserAgentString = string.IsNullOrWhiteSpace(userAgentString) ? libUserAgentString : userAgentString,
-				AllowRedirect = false,
-				UseCookies = false,
-				UseCompression = false,
-				Timeout = TimeSpan.FromSeconds(timeoutInSeconds)
-			};
-
-			_httpClientInstance = _client.GetStaticClient(_configWithCompression);
-
+			_httpClientInstance = httpClientFactory.CreateClient(nameof(LinkPreviewService));
 		}
 
 		public async Task<HeadersResponse?> RefreshScrapeOpsHeadersAsync(string apiKey)
@@ -275,7 +247,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 
 		private async Task<HttpResponseMessage?> TryGetResponseMessageWithoutCompressionAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption)
 		{
-			var tempClient = _client.GetTemporaryClient(_configWithOutCompression);
+			var tempClient = _httpClientFactory.CreateClient(nameof(LinkPreviewService) + "NoCompression");
 
 			var response = await tempClient.SendAsync(requestMessage, completionOption);
 
