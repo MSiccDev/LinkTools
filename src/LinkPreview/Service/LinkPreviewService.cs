@@ -11,11 +11,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using MSiccDev.Libs.LinkTools.ScrapeOpsHeaders;
@@ -24,7 +24,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 {
 	public class LinkPreviewService : ILinkPreviewService
 	{
-		private static HttpClient? _httpClientInstance;
+		private readonly HttpClient _client;
 
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IHeadersService _headersService;
@@ -36,7 +36,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			_httpClientFactory = httpClientFactory;
 			_headersService = headersService;
 			
-			_httpClientInstance = httpClientFactory.CreateClient(nameof(LinkPreviewService));
+			_client = httpClientFactory.CreateClient(nameof(LinkPreviewService));
 		}
 
 		public async Task<HeadersResponse?> RefreshScrapeOpsHeadersAsync(string apiKey)
@@ -67,133 +67,44 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 		
 		
 
-		public async Task<LinkPreviewRequest> GetLinkDataAsync(LinkPreviewRequest previewRequest, bool isCircleRedirect = false, bool retryWithoutCompressionOnFailure = true, bool noCompression = false, bool addCookieToRedirectedRequest = false, bool includeDescription = false, bool useScrapeOpsHeaders = false)
+		public async Task<LinkPreviewRequest> GetLinkDataAsync(
+		    LinkPreviewRequest previewRequest,
+		    bool isCircleRedirect = false,
+		    bool addCookieToRedirectedRequest = false,
+		    bool includeDescription = false,
+		    bool useScrapeOpsHeaders = false,
+		    CancellationToken cancellation = default)
 		{
-			try
-			{
-				var currentRequestedUrlString = previewRequest.CurrentRequestedUrl.ToString();
+		    try
+		    {
+		        // Special‑case: Facebook exit links
+		        if (previewRequest.CurrentRequestedUrl.ToString().Contains("facebook.com") &&
+		            previewRequest.CurrentRequestedUrl.ContainsParameter("u"))
+		        {
+		            return await HandleFacebookExitLink(previewRequest, cancellation);
+		        }
 
-				string cookieHeaderValue = null;
-				if (addCookieToRedirectedRequest)
-					cookieHeaderValue = TryExtractCookieValueFromLastResponse(previewRequest);
-
-				if (currentRequestedUrlString.Contains("facebook.com") &&
-					previewRequest.CurrentRequestedUrl.ContainsParameter("u"))
-				{
-					return await HandleFacebookExitLink(previewRequest);
-				}
-				//todo: add other special cases (twitch?, youtube?) here...
-				else
-				{
-					if (!isCircleRedirect)
-					{
-						//Console.WriteLine($"sending request for url {previewRequest.CurrentRequestedUrl}");
-
-						var request = new HttpRequestMessage(currentRequestedUrlString.IsHttps() ? HttpMethod.Get : HttpMethod.Head, previewRequest.CurrentRequestedUrl);
-						
-						if (useScrapeOpsHeaders)
-							ConfigureRequestHeaders(request);
-						
-						request.Headers.Host = previewRequest.CurrentRequestedUrl.Host;
-
-						if (!string.IsNullOrWhiteSpace(cookieHeaderValue))
-							request.Headers.Add("Cookie", cookieHeaderValue);
-
-						previewRequest.UsedHeaders = request.Headers.ToDictionary();
-
-						var completionOption = HttpCompletionOption.ResponseHeadersRead;
-
-						var response = noCompression ?
-									   await _httpClientInstance.SendAsync(request, completionOption) :
-									   await TryGetResponseMessageWithoutCompressionAsync(request, completionOption);
-
-						if (previewRequest.OriginalResponse == null)
-							previewRequest.OriginalResponse = response;
-						else
-							previewRequest.Redirects.Add(previewRequest.CurrentRequestedUrl.ToString(), response);
-
-						var statusCode = (int)response.StatusCode;
-						//Console.WriteLine($"received response {statusCode} from url {request.RequestUri}");
-
-						if (statusCode >= 300 && statusCode <= 399)
-						{
-							return await HandleRedirect(response, previewRequest);
-						}
-						else if (statusCode >= 400)
-						{
-							var message = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-							previewRequest.Error = new RequestError(statusCode, message);
-							Console.WriteLine(
-								$"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
-						}
-						else
-						{
-							var linkPreview = await TryGetLinkPreview(response, includeDescription);
-							previewRequest.Result = linkPreview;
-						}
-					}
-					else
-					{
-						await TryGetLinkDataFrom302Redirects(previewRequest, includeDescription).ConfigureAwait(false);
-					}
-
-					return previewRequest;
-				}
-			}
-			catch (Exception ex)
-			{
-				if (ex is HttpRequestException requestException)
-				{
-					//TODO: add recursive InnerEx search
-					//socket exceptions get wrapped in http request exceptions
-					//avoiding circular requests by explicitly returning
-					if (ex.InnerException is SocketException socketException)
-					{
-						previewRequest.Error = new RequestError(socketException);
-						return previewRequest;
-					}
-					//getting these more and more nowadays....
-					else if (ex.InnerException is AuthenticationException authenticationException)
-					{
-						previewRequest.Error = new RequestError(authenticationException);
-						return previewRequest;
-					}
-					//well, they can get wrapped as well...
-					else if (ex.InnerException is IOException iOException)
-					{
-						if (iOException.InnerException != null)
-						{
-							if (iOException.InnerException is SocketException iOSsocketException)
-							{
-								previewRequest.Error = new RequestError(iOSsocketException);
-								return previewRequest;
-							}
-						}
-					}
-					else
-					{
-						//in many cases, this leads to a success
-						if (retryWithoutCompressionOnFailure)
-						{
-							await GetLinkDataAsync(previewRequest, false, true);
-						}
-					}
-				}
-
-				// //TODO
-				// if (ex is TaskCanceledException taskCanceledException)
-				// {
-				// 	
-				// }
-
-				previewRequest.Error = new RequestError(ex);
-
-				Console.WriteLine($"{ex.GetType()}:{ex.Message} for url {previewRequest.CurrentRequestedUrl} in {nameof(GetLinkDataAsync)}");
-				return previewRequest;
-			}
-
+		        // Delegate the heavy lifting
+		        return await ProcessRequestAsync(
+		            previewRequest,
+		            isCircleRedirect,
+		            addCookieToRedirectedRequest,
+		            includeDescription,
+		            useScrapeOpsHeaders,
+		            cancellation);
+		    }
+		    catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+		    {
+			    throw;
+		    }
+		    catch (Exception ex)
+		    {
+			    previewRequest.Error = new RequestError(ex);
+			    Console.WriteLine($"{ex.GetType()}: {ex.Message} for url {previewRequest.CurrentRequestedUrl} in {nameof(LinkPreviewService)}");
+			    return previewRequest;
+		    }
 		}
+
 
 		private void ConfigureRequestHeaders(HttpRequestMessage request)
 		{
@@ -211,23 +122,89 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			}
 		}
 
+		private HttpRequestMessage BuildHttpRequest(Uri uri, string? cookieHeaderValue, bool useScrapeOpsHeaders)
+		{
+		    var request = new HttpRequestMessage(uri.ToString().IsHttps() ? HttpMethod.Get : HttpMethod.Head, uri);
 
-		private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest)
+		    if (useScrapeOpsHeaders)
+		        ConfigureRequestHeaders(request);
+
+		    request.Headers.Host = uri.Host;
+
+		    if (!string.IsNullOrWhiteSpace(cookieHeaderValue))
+		        request.Headers.Add("Cookie", cookieHeaderValue);
+
+		    return request;
+		}
+
+		private async Task<LinkPreviewRequest> ProcessRequestAsync(
+		    LinkPreviewRequest previewRequest,
+		    bool isCircleRedirect,
+		    bool addCookieToRedirectedRequest,
+		    bool includeDescription,
+		    bool useScrapeOpsHeaders,
+		    CancellationToken cancellation)
+		{
+		    if (!isCircleRedirect)
+		    {
+		        string? cookieHeaderValue = null;
+		        if (addCookieToRedirectedRequest)
+		            cookieHeaderValue = TryExtractCookieValueFromLastResponse(previewRequest);
+
+		        var request = BuildHttpRequest(previewRequest.CurrentRequestedUrl, cookieHeaderValue, useScrapeOpsHeaders);
+
+		        previewRequest.UsedHeaders = request.Headers.ToDictionary();
+
+		        var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation);
+
+		        if (previewRequest.OriginalResponse == null)
+		            previewRequest.OriginalResponse = response;
+		        else
+		            previewRequest.Redirects.Add(previewRequest.CurrentRequestedUrl.ToString(), response);
+
+		        var statusCode = (int)response.StatusCode;
+
+		        if (statusCode >= 300 && statusCode <= 399)
+		        {
+		            return await HandleRedirect(response, previewRequest, cancellation);
+		        }
+		        else if (statusCode >= 400)
+		        {
+		            var message = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
+		            previewRequest.Error = new RequestError(statusCode, message);
+		            Console.WriteLine($"got error response ({statusCode}) from {previewRequest.CurrentRequestedUrl}\nmessage: {message}");
+		        }
+		        else
+		        {
+		            var linkPreview = await TryGetLinkPreview(response, includeDescription, cancellation);
+		            previewRequest.Result = linkPreview;
+		        }
+		    }
+		    else
+		    {
+		        await TryGetLinkDataFrom302Redirects(previewRequest, includeDescription, cancellation).ConfigureAwait(false);
+		    }
+
+		    return previewRequest;
+		}
+
+
+		private async Task<LinkPreviewRequest> HandleFacebookExitLink(LinkPreviewRequest previewRequest, CancellationToken cancellation)
 		{
 			var correctLink = previewRequest.CurrentRequestedUrl.TryGetLinkFromFacebookExitLink();
 
 			if (correctLink != null)
 				previewRequest.CurrentRequestedUrl = correctLink;
 
-			return await GetLinkDataAsync(previewRequest, false);
+			return await GetLinkDataAsync(previewRequest, false, cancellation: cancellation);
 		}
 
 
-		private async Task TryGetLinkDataFrom302Redirects(LinkPreviewRequest previewRequest, bool includeDescription)
+		private async Task TryGetLinkDataFrom302Redirects(LinkPreviewRequest previewRequest, bool includeDescription, CancellationToken cancellation)
 		{
 			if (previewRequest.OriginalResponse.StatusCode == HttpStatusCode.Found)
 			{
-				var linkPreview = await TryGetLinkPreview(previewRequest.OriginalResponse, includeDescription);
+				var linkPreview = await TryGetLinkPreview(previewRequest.OriginalResponse, includeDescription, cancellation);
 				previewRequest.Result = linkPreview;
 			}
 			else if (previewRequest.Redirects.Values.Any(r => r.StatusCode == HttpStatusCode.Found))
@@ -235,7 +212,7 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				var linkPreviewTasks = new List<Task<LinkInfo>>();
 				foreach (var response in previewRequest.Redirects.Values.Where(r => r.StatusCode == HttpStatusCode.Found))
 				{
-					linkPreviewTasks.Add(TryGetLinkPreview(response, includeDescription));
+					linkPreviewTasks.Add(TryGetLinkPreview(response, includeDescription, cancellation));
 				}
 
 				var linkPreviews = await Task.WhenAll(linkPreviewTasks).ConfigureAwait(false);
@@ -245,19 +222,8 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 			}
 		}
 
-		private async Task<HttpResponseMessage?> TryGetResponseMessageWithoutCompressionAsync(HttpRequestMessage requestMessage, HttpCompletionOption completionOption)
-		{
-			var tempClient = _httpClientFactory.CreateClient(nameof(LinkPreviewService) + "NoCompression");
 
-			var response = await tempClient.SendAsync(requestMessage, completionOption);
-
-			tempClient.Dispose();
-
-			return response;
-		}
-
-
-		private async Task<LinkPreviewRequest> HandleRedirect(HttpResponseMessage? response, LinkPreviewRequest previewRequest)
+		private async Task<LinkPreviewRequest> HandleRedirect(HttpResponseMessage? response, LinkPreviewRequest previewRequest, CancellationToken cancellation)
 		{
 			var redirectUri = response.Headers.Location;
 
@@ -268,9 +234,9 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				if (redirectUri.ToString() == previewRequest.CurrentRequestedUrl.ToString())
 				{
 					if (!response.Headers.Any(header => header.Key == "Set-Cookie"))
-						return await GetLinkDataAsync(previewRequest, true);
+						return await GetLinkDataAsync(previewRequest, true, cancellation: cancellation);
 					else
-						return await GetLinkDataAsync(previewRequest, false, false, false, true);
+						return await GetLinkDataAsync(previewRequest, false, true, cancellation: cancellation);
 				}
 
 				var redirectUriString = redirectUri.ToString();
@@ -290,11 +256,11 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 				{
 					previewRequest.CurrentRequestedUrl = new Uri(redirectUriString);
 
-					return await GetLinkDataAsync(previewRequest);
+					return await GetLinkDataAsync(previewRequest, cancellation: cancellation);
 				}
 				else
 				{
-					return await GetLinkDataAsync(previewRequest, true);
+					return await GetLinkDataAsync(previewRequest, true, cancellation: cancellation);
 				}
 			}
 
@@ -304,9 +270,9 @@ namespace MSiccDev.Libs.LinkTools.LinkPreview
 		}
 		
 
-		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage? response, bool includeDescription)
+		private async Task<LinkInfo> TryGetLinkPreview(HttpResponseMessage? response, bool includeDescription, CancellationToken cancellation)
 		{
-			var responseContentStream = await response.Content.ReadAsStreamAsync();
+			var responseContentStream = await response.Content.ReadAsStreamAsync(cancellation);
 
 			var streamReader = new StreamReader(responseContentStream, Encoding.UTF8);
 			var html = await streamReader.ReadToEndAsync();
